@@ -30,7 +30,3 @@ mybatis-plus:
 #population-data-system:
   #path: D:\Project\JavaWeb\Project\reggie\src\main\resources\LMusic\images\img\
 
-#阿里云对象存储服务
-aliyun:
-  oss:
-    file:
