@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奈川蛋糕店</title>
+    <link rel="shortcut icon" href="../../favicon.png">
+    <!-- 引入el样式 -->
+    <link rel="stylesheet" href="../../plugins/element-ui/index.css">
+    <link rel="stylesheet" href="../../styles/reset.css" />
+    <link rel="stylesheet" href="../../styles/front/personal.css" />
+</head>
+
+
+<body>
+    <!-- 主体 -->
+    <div class="app" id="app">
+        <div class="userInfo-box">
+            <div class="ub-userAvatar">
+                <el-avatar style="width: 100px; height: 100px" shape="square" size="large" :src="userData.userAvatar"
+                    fit="fill"></el-avatar>
+            </div>
+            <div class="ub-userNickname">昵称:{{userData.userNickname}}</div>
+            <div class="ub-userGender">性别:{{userData.userGender}}</div>
+            <div class="ub-userUsername">账号:{{userData.userUsername}}</div>
+            <div class="ub-userPhone">手机:{{userData.userPhone}}</div>
+            <div class="ub-userEmail">邮箱:{{userData.userEmail}}</div>
+            <div class="ub-userAddress">地址:{{userData.userAddress}}</div>
+            <div class="ub-createTime">注册时间:{{userData.createTime}}</div>
+            <div class="ub-button">
+                <div>
+                    <el-button class="ub-edit-button" type="primary" plain @click="editUserDV = true">修改资料</el-button>
+                </div>
+                <div>
+                    <el-button class="ub-edit-button" type="success" plain @click="sikpComment">我的评论</el-button>
+                </div>
+                <div>
+                    <el-button class="ub-edit-button" type="warning" plain @click="editPwdDV = true">修改密码</el-button>
+                </div>
+                <div>
+                    <!-- <el-popconfirm title=""> -->
+                    <el-button class="ub-edit-button" type="danger" plain @click="deleteUser(userData.id)">注销账号
+                    </el-button>
+                    <!-- </el-popconfirm> -->
+                </div>
+            </div>
+            <div class="ub-line"></div>
+        </div>
+        <!-- 修改密码弹窗 -->
+        <div>
+            <el-dialog title="密码修改后将重新登录" v-if="editPwdDV" :visible.sync="editPwdDV" width="40%"
+                :before-close="handleClose">
+                <div>
+                    <el-form :model="editPwd" status-icon :rules="rules" ref="editPwd" label-width="100px">
+                        <el-form-item label="" prop="oldPassword">
+                            <el-input class="edit-pwd-input" prefix-icon="el-icon-lock" placeholder="请输入原密码"
+                                v-model="editPwd.oldPassword" show-password clearable></el-input>
+                        </el-form-item>
+                        <br />
+                        <el-form-item label="" prop="userPassword">
+                            <el-input class="edit-pwd-input" prefix-icon="el-icon-lock" placeholder="请输入新密码"
+                                v-model="editPwd.userPassword" show-password clearable></el-input>
+                        </el-form-item>
+                        <br />
+                        <el-form-item label="" prop="reUserPassword">
+                            <el-input class="edit-pwd-input" prefix-icon="el-icon-lock" placeholder="请再次输入新密码"
+                                v-model="editPwd.reUserPassword" show-password clearable></el-input>
+                        </el-form-item>
+                    </el-form>
+                </div>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="caneclEditPwd">取消修改</el-button>
+                    <el-button type="primary" @click="confirmEditPwd(editPwd)">确定修改</el-button>
+                </span>
+            </el-dialog>
+        </div>
+        <!-- 修改资料弹窗 -->
+        <div>
+            <el-dialog title="修改个人资料" :visible.sync="editUserDV" width="50%" fullscreen :before-close="handleClose">
+                <div>
+                    <el-form :model="userDataTmp" status-icon :rules="rules" ref="userDataTmp" label-width="100px">
+                        <div class="editUser-box">
+                            <div class="editUser-userAvatar">
+                                <el-upload class="editUser-userAvatar-uploader"
+                                    action="http://localhost:8088/oss/avatarUpload" :show-file-list="false"
+                                    :on-success="handleAvatarSuccess" :before-upload="beforeUpload">
+                                    <el-avatar v-if="userDataTmp.userAvatar" style="width: 80px; height: 80px"
+                                        shape="square" size="large" :src="userDataTmp.userAvatar" fit="fill">
+                                    </el-avatar>
+                                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                </el-upload>
+                            </div>
+                            <div class="editUser-userUsername">
+                                <el-form-item label="账号:" prop="userUsername">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-user" placeholder="请输入账号"
+                                        v-model="userDataTmp.userUsername" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userNickname">
+                                <el-form-item label="昵称:" prop="userNickname">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-user" placeholder="请输入昵称"
+                                        v-model="userDataTmp.userNickname" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userGender">
+                                <el-form-item label="性别:" prop="userGender">
+                                    <el-radio-group v-model="userDataTmp.userGender">
+                                        <el-radio label="男"></el-radio>
+                                        <el-radio label="女"></el-radio>
+                                    </el-radio-group>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userEmail">
+                                <el-form-item label="邮箱:" prop="userEmail">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-message" placeholder="请输入邮箱"
+                                        v-model="userDataTmp.userEmail" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userPhone">
+                                <el-form-item label="手机:" prop="userPhone">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-mobile-phone" placeholder="请输入手机"
+                                        v-model="userDataTmp.userPhone" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userAddress">
+                                <el-form-item label="地址:" prop="userAddress">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-map-location" placeholder="请输入收货地址"
+                                        v-model="userDataTmp.userAddress" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                        </div>
+                    </el-form>
+                    <el-button class="editUser-button1" @click="caneclEditUser">取消修改</el-button>
+                    <el-button class="editUser-button2" type="primary" @click="confirmEditUser(userDataTmp)">确定修改
+                    </el-button>
+                </div>
+            </el-dialog>
+        </div>
+    </div>
+    <!-- 引入vue -->
+    <script src="../../plugins/vue/vue.min.js"></script>
+    <!-- 引入el组件库 -->
+    <script src="../../plugins/element-ui/index.js"></script>
+    <!-- 引入axios -->
+    <script src="../../plugins/axios/axios.min.js"></script>
+    <!-- 引入输入校验 -->
+    <script src="../../js/validate.js"></script>
+    <!-- 引入拦截器 -->
+    <script src="../../js/request.js"></script>
+    <!-- 引入接口 -->
+    <script src="../../api/index.js"></script>
+    <script>
+        new Vue({
+            el: "#app",
+            data() {
+                return {
+                    userId: "",
+                    userData: {
+                        "id": "",
+                        "userUsername": "",
+                        "userPassword": "",
+                        "userNickname": "",
+                        "userAvatar": "",
+                        "userGender": "",
+                        "userPhone": "",
+                        "userEmail": "",
+                        "userAddress": "",
+                        "userStatus": "",
+                        "createTime": "",
+                        "updateTime": ""
+                    },
+                    editPwdDV: false,
+                    editPwd: {
+                        oldPassword: "",
+                        userPassword: "",
+                        reUserPassword: "",
+                    },
+                    editUserDV: false,
+                    userDataTmp: {
+                        "id": "",
+                        "userUsername": "",
+                        "userPassword": "",
+                        "userNickname": "",
+                        "userAvatar": "",
+                        "userGender": "",
+                        "userPhone": "",
+                        "userEmail": "",
+                        "userAddress": "",
+                        "userStatus": "",
+                        "createTime": "",
+                        "updateTime": ""
+                    },
+                    userDataNull: {
+                        "id": "",
+                        "userUsername": "",
+                        "userPassword": "",
+                        "userNickname": "",
+                        "userAvatar": "",
+                        "userGender": "",
+                        "userPhone": "",
+                        "userEmail": "",
+                        "userAddress": "",
+                        "userStatus": "",
+                        "createTime": "",
+                        "updateTime": ""
+                    },
+                    userAvatar: "",
+                }
+            },
+            computed: {
+                rules() {
+                    var checkRePassWord = (rule, value, callback) => {
+                        if (value == "") {
+                            callback(new Error("请输入密码"))
+                        } else if (value.length > 20 || value.length < 6) {
+                            callback(new Error("密码长度应是6-20"))
+                        } else if (value != this.editPwd.userPassword) {
+                            callback(new Error("两次密码不一致"))
+                        } else {
+                            callback()
+                        }
+                    }
+                    return {
+                        // 验证账号
+                        userUsername: [{ required: false, 'validator': checkUserName, trigger: 'blur' }],
+                        empUsername: [{ required: false, 'validator': checkUserName, trigger: 'blur' }],
+                        // 验证邮箱
+                        userEmail: [{ required: false, 'validator': checkEmail, trigger: 'blur' }],
+                        // 验证密码
+                        oldPassword: [{ required: false, 'validator': checkPassWord, trigger: 'blur' }],
+                        userPassword: [{ required: false, 'validator': checkPassWord, trigger: 'blur' }],
+                        empPassword: [{ required: false, 'validator': checkPassWord, trigger: 'blur' }],
+                        // 验证二次密码
+                        reUserPassword: [{ required: false, 'validator': checkRePassWord, trigger: 'blur' }],
+                        // 验证昵称
+                        userNickname: [{ required: false, 'validator': checkName, trigger: 'blur' }],
+                        // 验证手机号
+                        userPhone: [{ required: false, 'validator': checkPhone, trigger: 'blur' }],
+                        // 验证地址
+                        userAddress: [{ required: false, 'validator': checkAddress, trigger: 'blur' }],
+                    }
+                }
+            },
+            created() {
+                this.userId = JSON.parse(localStorage.getItem('userInfo')).id
+                this.init()
+            },
+            mounted() {
+            },
+            methods: {
+                //异步请求登录用户的数据
+                async init() {
+                    queryUserById(this.userId).then(res => {
+                        if (res.code === 1) {
+                            window.localStorage.setItem('userInfo', JSON.stringify(res.data))
+                            this.userData = res.data
+                            this.userData.userGender = res.data.userGender === 0 ? '女' : '男'
+                            this.userDataTmp = JSON.parse(localStorage.getItem('userInfo'))
+                            this.userDataTmp.userGender = JSON.parse(localStorage.getItem('userInfo')).userGender === 0 ? '女' : '男'
+                        } else {
+                            this.$message.error(res.message || '操作失败')
+                        }
+                    })
+                },
+                //跳转到我的评论页面
+                sikpComment() {
+                    window.parent.menuHandle({
+                        id: '0',
+                        url: 'page/front/myComment.html',
+                    }, false)
+                },
+                //删除账号
+                deleteUser(ids) {
+                    this.$confirm('此操作会永久删除账号,请确认!!!', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        deleteUserById(ids).then(res => {
+                            if (res.code === 1) {
+                                this.$message.success('删除成功！')
+                                window.parent.logout({}, false)
+                            } else {
+                                this.$message.error(res.message || '操作失败')
+                            }
+                        }).catch(err => {
+                            this.$message.error('请求出错了：' + err)
+                        })
+                    }).catch(() => {
+                        this.$message({
+                            type: 'info',
+                            message: '已取消删除'
+                        });
+                    });
+                },
+                //关闭弹窗
+                handleClose(done) {
+                    this.$confirm('确认关闭？')
+                        .then(_ => {
+                            done();
+                        })
+                        .catch(_ => { });
+                },
+                //取消修改密码
+                caneclEditPwd() {
+                    this.editPwd.oldPassword = ""
+                    this.editPwd.userPassword = ""
+                    this.editPwd.reUserPassword = ""
+                    this.editPwdDV = false
+                },
+                //确定修改密码
+                async confirmEditPwd(editPwd) {
+                    this.$refs.editPwd.validate(async (valid) => {
+                        if (valid) {
+                            const params = {
+                                id: this.userData.id,
+                                ...this.editPwd,
+                            }
+                            delete params.reUserPassword
+                            console.log(params)
+                            editUserPwdApi(params).then(res => {
+                                if (res.code === 1) {
+                                    this.$message.success('用户密码修改成功！')
+                                    this.editPwdDV = false
+                                    window.parent.logout({}, false)
+                                } else {
+                                    this.$message.error(res.message || '操作失败')
+                                }
+                            }).catch(err => {
+                                this.$message.error('请求出错了：' + err)
+                            })
+                        } else {
+                            console.log('error submit!!')
+                            return false
+                        }
+                    })
+                },
+                //取消修改资料
+                caneclEditUser() {
+                    this.editUserDV = false
+                    this.userDataTmp = JSON.parse(localStorage.getItem('userInfo'))
+                    this.userDataTmp.userGender = JSON.parse(localStorage.getItem('userInfo')).userGender === 0 ? '女' : '男'
+                },
+                //定义图片的上传规则
+                beforeUpload(file) {
+                    const isJPG = file.type === 'image/jpeg'
+                    const isPNG = file.type === 'image/png'
+                    const isGIF = file.type === 'image/gif'
+                    const isLt2M = file.size / 1024 / 1024 < 2
+                    if (isJPG || isPNG || isGIF) {
+                        if (!isLt2M) {
+                            this.$message.error("上传的图片大小不能超过2MB!")
+                        }
+                        return isLt2M
+                    } else {
+                        this.$message.error("上传的图片格式只能为JPG,PNG和GIF")
+                    }
+
+                },
+                //保存 图片上传到阿里云OSS服务后 返回的url
+                handleAvatarSuccess(res, file) {
+                    this.userDataTmp.userAvatar = file.response.map.url
+                },
+                //修改用户的数据
+                async confirmEditUser(userDataTmp) {
+                    this.$refs.userDataTmp.validate(async (valid) => {
+                        if (valid) {
+                            const params = {
+                                ...this.userDataTmp,
+                                userGender: this.userDataTmp.userGender === '女' ? 0 : 1,
+                            }
+                            editUserApi(params).then(res => {
+                                if (res.code === 1) {
+                                    window.localStorage.setItem('userInfo', JSON.stringify(this.userDataTmp))
+                                    this.init()
+                                    this.$message.success('用户信息修改成功！')
+                                    this.editUserDV = false
+                                } else {
+                                    this.$message.error(res.message || '操作失败')
+                                }
+                            }).catch(err => {
+                                this.$message.error('请求出错了：' + err)
+                            })
+                        } else {
+                            console.log('error submit!!')
+                            return false
+                        }
+                    })
+                }
+            }
+        })
+    </script>
+
+</body>
+
+</html>

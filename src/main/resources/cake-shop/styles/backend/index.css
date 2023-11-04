@@ -1,0 +1,255 @@
+.main-page {
+  position: relative;
+  width: 100%;
+  height: 652px;
+}
+
+.page-top-left {
+  position: absolute;
+  width: 200px;
+  height: 100px;
+  background-color: #545c64;
+  text-align: center;
+  line-height: 100px;
+}
+
+.page-button-left {
+  position: absolute;
+  width: 200px;
+  height: 645px;
+  top: 100px;
+  background-color: #545c64;
+}
+
+.page-top-right {
+  position: absolute;
+  width: calc(100% - 200px);
+  height: 80px;
+  top: 0px;
+  left: 200px;
+  background-color: #fff1f1;
+}
+
+.page-top-right-text {
+  position: absolute;
+  width: 500px;
+  height: 80px;
+  color: #6e6e6e;
+  font-size: 20px;
+  left: 3%;
+  line-height: 80px;
+}
+
+.page-top-right-img {
+  position: absolute;
+  width: 100px;
+  height: 80px;
+  background-color: aquamarine;
+  right: 5%;
+}
+
+.el-menu-item-login {
+  width: 100px;
+  height: 80px;
+  line-height: 80px;
+  text-align: center;
+}
+
+.page-button-right {
+  position: absolute;
+  width: calc(100% - 200px);
+  height: 665px;
+  top: 80px;
+  left: 200px;
+  background-color: rgb(225, 255, 245);
+
+}
+
+.menu-item {
+  height: 80px;
+  text-align: center;
+  line-height: 80px;
+}
+
+.page-top-right-line {
+  position: absolute;
+  width: calc(100% - 240px);
+  height: 2px;
+  left: 220px;
+  top: 78px;
+  background-color: #949494;
+}
+
+.employeeInfo {
+  width: 180px;
+  height: 250px;
+}
+
+.employeeInfo>p {
+  font-size: 16px;
+  margin-top: 10px;
+  margin-left: 7%;
+}
+
+.employeeInfo>.elb {
+  width: 70%;
+  margin-left: 15%;
+  margin-top: 10px;
+}
+
+.edit-pwd-input {
+  width: 300px;
+  margin-top: 5px;
+}
+
+.editUser-box {
+  position: relative;
+  width: 100%;
+  height: 495px;
+  background-color: rgba(191, 255, 249, 0.3);
+}
+
+.edit-user-input {
+  width: 400px;
+}
+
+.editUser-userAvatar {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  left: 50%;
+}
+
+.editUser-userAvatarr-uploader {
+  width: 80px;
+  height: 80px;
+}
+
+.editUser-userUsername {
+  position: absolute;
+  width: 550px;
+  height: 60px;
+  /* background-color: #fefb99; */
+  left: 33%;
+  top: 17%;
+}
+
+.editUser-userNickname {
+  position: absolute;
+  width: 550px;
+  height: 60px;
+  /* background-color: #fefb99; */
+  left: 33%;
+  top: 30%;
+}
+
+.editUser-userGender {
+  position: absolute;
+  width: 550px;
+  height: 40px;
+  /* background-color: #fefb99; */
+  left: 33%;
+  top: 43%;
+}
+
+.editUser-userEmail {
+  position: absolute;
+  width: 550px;
+  height: 60px;
+  /* background-color: #fefb99; */
+  left: 33%;
+  top: 52%;
+}
+
+.editUser-userPhone {
+  position: absolute;
+  width: 550px;
+  height: 60px;
+  /* background-color: #fefb99; */
+  left: 33%;
+  top: 65%;
+}
+
+.editUser-userID{
+  position: absolute;
+  width: 550px;
+  height: 60px;
+  /* background-color: #fefb99; */
+  left: 33%;
+  top: 78%;
+}
+
+.editUser-userAddress {
+  position: absolute;
+  width: 550px;
+  height: 60px;
+  /* background-color: #fefb99; */
+  left: 33%;
+  top: 91%;
+}
+
+.editUser-button1 {
+  position: absolute;
+  width: 120px;
+  left: 42%;
+  top: 83%;
+}
+
+.editUser-button2 {
+  position: absolute;
+  width: 120px;
+  left: 55%;
+  top: 83%;
+}
+
+
+.ub-box{
+  position: relative;
+  width: 100%;
+  height: 300px;
+}
+.ub-userAvatar{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.ub-userNickname{
+  position: absolute;
+  left: 35%;
+  top: 30%;
+}
+.ub-userGender{
+  position: absolute;
+  left: 65%;
+  top: 30%;
+}
+.ub-userUsername{
+  position: absolute;
+  left: 35%;
+  top: 40%;
+}
+.ub-userPhone{
+  position: absolute;
+  left: 35%;
+  top: 50%;
+}
+.ub-userEmail{
+  position: absolute;
+  left: 35%;
+  top: 60%;
+}
+.ub-userID{
+  position: absolute;
+  left: 35%;
+  top: 70%;
+}
+.ub-userAddress{
+  position: absolute;
+  left: 35%;
+  top: 80%;
+}
+.ub-createTime{
+  position: absolute;
+  left:35%;
+  top: 90%;
+}

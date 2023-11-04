@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奈川蛋糕店</title>
+    <link rel="shortcut icon" href="favicon.png">
+    <!-- 引入el样式 -->
+    <link rel="stylesheet" href="../../plugins/element-ui/index.css">
+    <link rel="stylesheet" href="../../styles/reset.css" />
+    <link rel="stylesheet" href="../../styles/backend/ordersPage.css" />
+</head>
+
+<body>
+    <div class="app" id="app">
+        <div>
+            <!--搜索，操作-->
+            <div class="table-top">
+                <el-tooltip class="item" effect="dark" content="点击放大镜或敲击回车查询" placement="bottom">
+                    <el-input class="head-all-input-input" placeholder="请输入蛋糕名称" clearable v-model="cakeName"
+                        @keyup.enter.native="handleQuery">
+                        <i slot="prefix" class="el-input__icon el-icon-search" @click="handleQuery"
+                            style="cursor: pointer;"></i>
+                    </el-input>
+                </el-tooltip>
+                <el-tooltip class="item" effect="dark" content="点击放大镜或敲击回车查询" placement="bottom">
+                    <el-input class="head-all-input-input" placeholder="请输入用户昵称" clearable v-model="userNickname"
+                        @keyup.enter.native="handleQuery">
+                        <i slot="prefix" class="el-input__icon el-icon-search" @click="handleQuery"
+                            style="cursor: pointer;"></i>
+                    </el-input>
+                </el-tooltip>
+                <el-tooltip class="item" effect="dark" content="点击放大镜或敲击回车查询" placement="bottom">
+                    <el-input class="head-all-input-input" placeholder="请输入配送地址" clearable v-model="userAddress"
+                        @keyup.enter.native="handleQuery">
+                        <i slot="prefix" class="el-input__icon el-icon-search" @click="handleQuery"
+                            style="cursor: pointer;"></i>
+                    </el-input>
+                </el-tooltip>
+                <el-button class="head-all-input-input head-all-input-botton" type="primary" icon="el-icon-refresh"
+                    plain @click="handleQueryReset">重置</el-button>
+                <div class="table-botton">
+                    <el-button v-if="isAdmin" type="danger" plain @click="handleDelete('批量', null)">批量删除</el-button>
+                </div>
+            </div>
+            <!--表格-->
+            <el-table :data="ordersData" height="540" border style="width: 100%; margin-left: 0%;"
+                :row-class-name="tableRowClassName" @selection-change="handleSelectionChange">
+                <el-table-column align="center" type="selection" width="50">
+                </el-table-column>
+                <el-table-column type="expand">
+                    <template slot-scope="props">
+                        <el-form label-position="left" inline class="demo-table-expand">
+                            <el-form-item label="配送地址:">
+                                <span>{{ props.row.userAddress }}</span>
+                            </el-form-item>
+                            <el-form-item label="订单评分:">
+                                <span>{{ props.row.cakeRating }}分</span>
+                            </el-form-item>
+                            <el-form-item label="是否出餐:">
+                                <span>{{ props.row.smStatus == 1 ? '已出餐' : '未出餐' }}</span>
+                            </el-form-item>
+                            <el-form-item v-if="props.row.smStatus" label="出餐时间:">
+                                <span>{{ props.row.smTime }}</span>
+                            </el-form-item>
+                            <el-form-item label="是否配送:">
+                                <span>{{ props.row.deStatus == 1 ? '已配送' : '未配送' }}</span>
+                            </el-form-item>
+                            <el-form-item v-if="props.row.deStatus" label="配送时间:">
+                                <span>{{ props.row.deTime }}</span>
+                            </el-form-item>
+                            <el-form-item label="订单状态:">
+                                <span>{{props.row.ocStatus == 0 && props.row.deStatus == 0 ? '订单正在进行' :
+                                    props.row.ocStatus == 0 && props.row.deStatus == 1 ? '等待用户收货' : props.row.ocStatus
+                                    == 1 ? '用户取消订单' : props.row.ocStatus == 2 ? '商家取消订单' : '订单已完成'}}</span>
+                            </el-form-item>
+                            <el-form-item v-if="props.row.ocStatus" label="完成时间:">
+                                <span>{{ props.row.ocTime }}</span>
+                            </el-form-item>
+                        </el-form>
+                    </template>
+                </el-table-column>
+                <el-table-column align="center" label="蛋糕图片" width="80">
+                    <template slot-scope="{ row }">
+                        <el-avatar style="width: 40px; height: 40px" shape="square" size="large" :src="row.cakeImg"
+                            fit="fill"></el-avatar>
+                    </template>
+                </el-table-column>
+                <el-table-column align="center" prop="cakeName" label="蛋糕名称" width="180">
+                </el-table-column>
+                <el-table-column align="center" label="用户头像" width="80">
+                    <template slot-scope="{ row }">
+                        <el-avatar style="width: 40px; height: 40px" shape="square" size="large" :src="row.userAvatar"
+                            fit="fill"></el-avatar>
+                    </template>
+                </el-table-column>
+                <el-table-column align="center" prop="userNickname" label="用户昵称" width="180">
+                </el-table-column>
+                <el-table-column align="center" prop="userPhone" label="用户手机" width="150">
+                </el-table-column>
+                <el-table-column sortable align="center" prop="createTime" label="下单时间" width="180">
+                </el-table-column>
+                <el-table-column sortable align="center" prop="cakePrice" label="订单金额" width="150">
+                </el-table-column>
+                <el-table-column align="center" label="操作">
+                    <template slot-scope="scope">
+                        <el-button type="warning" plain @click="handleEditUser(scope.row.id)">详情</el-button>
+                        <el-button v-if="isAdmin" type="danger" plain @click="handleDelete('单删', scope.row.id)">删除
+                        </el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <!--分页条-->
+            <el-pagination class="pageList" :page-sizes="[10, 20, 50, 100, 200]" :page-size="pageSize"
+                layout="total, sizes, prev, pager, next, jumper" :total="counts" :current-page.sync="page"
+                @size-change="handleSizeChange" @current-change="handleCurrentChange"></el-pagination>
+        </div>
+        <!-- 详情弹窗 -->
+        <div>
+            <el-dialog title="订单详情" :visible.sync="editOrdersDV" width="50%" fullscreen :before-close="handleClose">
+                <div class="orders">
+                    <div class="orders-box">
+                        <div class="orders-cakeImg">
+                            <el-avatar style="width: 100px; height: 100px" shape="square" size="large"
+                                :src="ordersDataInfo.cakeImg" fit="fill"></el-avatar>
+                        </div>
+                        <div class="orders-cakeName">蛋糕名称:{{ ordersDataInfo.cakeName }}</div>
+                        <div class="orders-cakePrice">订单价格:{{ ordersDataInfo.cakePrice }}</div>
+                        <div class="orders-createTime">下单时间:{{ ordersDataInfo.createTime }}</div>
+                        <div class="orders-userAvatar">
+                            <el-avatar style="width: 100px; height: 100px" shape="square" size="large"
+                                :src="ordersDataInfo.userAvatar" fit="fill"></el-avatar>
+                        </div>
+                        <div class="orders-userNickname">用户昵称:{{ ordersDataInfo.userNickname }}</div>
+                        <div class="orders-userPhone">用户手机:{{ ordersDataInfo.userPhone }}</div>
+                        <div class="orders-userAddress">配送地址:{{ ordersDataInfo.userAddress }}</div>
+                        <div class="orders-smStatus">
+                            <div>是否出餐:{{ ordersDataInfo.smStatus == 1 ? '已出餐' : '未出餐' }}</div>
+                            <div v-if="ordersDataInfo.smStatus" style="margin-top: 5px;">出餐时间:{{ ordersDataInfo.smTime }}</div>
+                        </div>
+                        <div class="orders-deStatus">
+                            <div>是否配送:{{ ordersDataInfo.deStatus == 1 ? '已配送' : '未配送' }}</div>
+                            <div v-if="ordersDataInfo.deStatus" style="margin-top: 5px;">配送时间:{{ ordersDataInfo.deTime }}</div>
+                        </div>
+                        <div class="orders-ocStatus">
+                            <div>订单状态:{{ ordersDataInfo.ocStatus == 0 && ordersDataInfo.deStatus == 0 ? '订单正在进行' :
+                                ordersDataInfo.ocStatus == 0 && ordersDataInfo.deStatus == 1 ? '等待用户收货' :
+                                ordersDataInfo.ocStatus
+                                == 1 ? '用户取消订单' : ordersDataInfo.ocStatus == 2 ? '商家取消订单' : '订单已完成' }}</div>
+                            <div v-if="ordersDataInfo.ocStatus" style="margin-top: 5px;">完成时间:{{ ordersDataInfo.ocTime }}</div>
+                        </div>
+                    </div>
+                    <div class="orders-button-box">
+                        <el-button type="primary" plain @click="caneclEditOrders">返回列表</el-button>
+                        <el-button v-if="ordersDataInfo.ocStatus == 0" type="danger" plain
+                            @click="handleOcStatus(2)">
+                            取消订单</el-button>
+                        <el-button v-else type="warning" plain @click="editRatingsDV = true">
+                            修改评分</el-button>
+                        <el-button v-if="isSmStatus" type="success" plain
+                            @click="handleSmStatus(1)">
+                            商家出餐</el-button>
+                        <el-button v-if="isDeStatus" type="success" plain
+                            @click="handleDeStatus(1)">
+                            骑手配送</el-button>
+                        <el-tooltip v-if="isOcStatus" class="item" effect="dark" content="用户长时间不收货可由商家收货"
+                            placement="top">
+                            <el-button v-if="isOcStatus" type="success" plain
+                                @click="handleOcStatus(3)">
+                                确认收货</el-button>
+                        </el-tooltip>
+                    </div>
+                </div>
+            </el-dialog>
+        </div>
+        <!--修改评分-->
+        <div>
+            <el-dialog title="修改订单评分" :visible.sync="editRatingsDV" width="40%" :before-close="handleClose">
+                <div class="edit-rating">
+                    <div class="edit-rate-title">评分:</div>
+                    <el-rate class="edit-rate" v-model="editRate" show-text>
+                    </el-rate>
+                    <div class="edit-title">警告:人为操控评分有风险，慎用</div>
+                </div>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="cancelEditRating">取 消</el-button>
+                    <el-button type="primary" @click="handleEditRating">确 定</el-button>
+                </span>
+            </el-dialog>
+        </div>
+    </div>
+    <!-- 引入vue -->
+    <script src="../../plugins/vue/vue.min.js"></script>
+    <!-- 引入el组件库 -->
+    <script src="../../plugins/element-ui/index.js"></script>
+    <!-- 引入axios -->
+    <script src="../../plugins/axios/axios.min.js"></script>
+    <!-- 引入输入校验 -->
+    <script src="../../js/validate.js"></script>
+    <!-- 引入拦截器 -->
+    <script src="../../js/request.js"></script>
+    <!-- 引入接口 -->
+    <script src="../../api/backend/ordersPage.js"></script>
+    <script>
+        new Vue({
+            el: "#app",
+            data() {
+                return {
+                    isAdmin: true,
+                    employeeInfo: {},
+                    employeeData: {
+                        "id": "",
+                        "empUsername": "",
+                        "empPassword": "",
+                        "empNickname": "",
+                        "empAvatar": "",
+                        "empGender": "",
+                        "empPhone": "",
+                        "empIdentity": "",
+                        "empEmail": "",
+                        "empAddress": "",
+                        "empStatus": "",
+                        "createTime": "",
+                        "updateTime": ""
+                    },
+                    page: 1,
+                    pageSize: 10,
+                    counts: "",
+                    ordersData: [],
+                    cakeName: "",
+                    userNickname: "",
+                    userAddress: "",
+                    editOrdersDV: false,
+                    ordersDataInfo: {},
+                    isSmStatus: false,
+                    isDeStatus: false,
+                    isOcStatus: false,
+                    editRatingsDV: false,
+                    editRate: "",
+                }
+            },
+            computed: {},
+            created() {
+                this.employeeInfo = JSON.parse(window.localStorage.getItem('employeeInfo'))
+                if (this.employeeInfo != null) {
+                    this.employeeData = this.employeeInfo
+                }
+                this.init()
+                this.handleGetOrdersData()
+            },
+            mounted() {
+            },
+            methods: {
+                //查询所有订单数据
+                async handleGetOrdersData() {
+                    const params = {
+                        page: this.page,
+                        pageSize: this.pageSize,
+                        cakeName: this.cakeName ? this.cakeName : undefined,
+                        userNickname: this.userNickname ? this.userNickname : undefined,
+                        userAddress: this.userAddress ? this.userAddress : undefined,
+                    }
+                    await getOrderList(params).then(res => {
+                        if (res.code === 1) {
+                            this.ordersData = res.data.records || []
+                            this.counts = res.data.total
+                        }
+                    }).catch(err => {
+                        this.$message.error('请求出错了：' + err)
+                    })
+                },
+                // 验证是否为管理员登录登录
+                init() {
+                    if (this.employeeData.empUsername == "administrator") {
+                        this.isAdmin = true
+                    } else {
+                        this.isAdmin = false
+                    }
+                },
+                //模糊搜索查询
+                handleQuery() {
+                    this.page = 1;
+                    this.handleGetOrdersData();
+                },
+                //重置分类查询
+                handleQueryReset() {
+                    this.cakeName = "";
+                    this.userNickname = "";
+                    this.userAddress = "";
+                    this.page = 1;
+                    this.pageSize = 10;
+                    this.handleGetOrdersData();
+                },
+                //分页查询，页数
+                handleCurrentChange(val) {
+                    this.page = val
+                    this.handleGetOrdersData()
+                },
+                //分页查询，条数
+                handleSizeChange(val) {
+                    this.pageSize = val
+                    this.handleGetOrdersData()
+                },
+                //将勾选的数据构成数组
+                handleSelectionChange(val) {
+                    let checkArr = []
+                    val.forEach((n) => {
+                        checkArr.push(n.id)
+                    })
+                    this.checkList = checkArr
+                },
+                //修改表格颜色
+                tableRowClassName({ row, rowIndex }) {
+                    if (row.deStatus === 1 && row.ocStatus === 0) {
+                        return 'primary-row';
+                    }
+                    if (row.ocStatus == 1) {
+                        return 'danger-row';
+                    }
+                    if (row.ocStatus == 2) {
+                        return 'danger2-row';
+                    }
+                    if (row.ocStatus == 3) {
+                        return 'success-row';
+                    }
+                    return 'warning-row';
+                },
+                // 删除
+                handleDelete(type, id) {
+                    if (type === '批量' && id === null) {
+                        if (this.checkList.length === 0) {
+                            return this.$message.error('请选择删除对象')
+                        }
+                    }
+                    this.$confirm('确认删除该订单, 是否继续?', '确定删除', {
+                        'confirmButtonText': '确定',
+                        'cancelButtonText': '取消',
+                        'type': 'warning'
+                    }).then(() => {
+                        deleteOrders(type === '批量' ? this.checkList.join(',') : id).then(res => {
+                            if (res.code === 1) {
+                                this.$message.success('删除成功！')
+                                this.handleQuery()
+                            } else {
+                                this.$message.error(res.message || '操作失败')
+                            }
+                        }).catch(err => {
+                            this.$message.error('请求出错了：' + err)
+                        })
+                    })
+                },
+                //异步请求用户的数据
+                async handleQueryOrders(id) {
+                    queryOrdersById(id).then(res => {
+                        if (res.code === 1) {
+                            this.ordersDataInfo = res.data
+                            if (this.ordersDataInfo.smStatus == 0) {
+                                this.isSmStatus = true
+                                this.isDeStatus = false
+                                this.isOcStatus = false
+                            } else if (this.ordersDataInfo.deStatus == 0) {
+                                this.isSmStatus = false
+                                this.isDeStatus = true
+                                this.isOcStatus = false
+                            } else if (this.ordersDataInfo.ocStatus == 0) {
+                                this.isSmStatus = false
+                                this.isDeStatus = false
+                                this.isOcStatus = true
+                            } else {
+                                this.isSmStatus = false
+                                this.isDeStatus = false
+                                this.isOcStatus = false
+                            }
+                        } else {
+                            this.$message.error(res.message || '操作失败')
+                        }
+                    })
+                },
+                //请求用户数据并打开修改弹窗
+                handleEditUser(row) {
+                    this.handleQueryOrders(row)
+                    this.editOrdersDV = true
+                },
+                //取消修改资料
+                caneclEditOrders() {
+                    this.editOrdersDV = false
+                    this.ordersDataInfo = {}
+                    this.isSmStatus = false
+                    this.isDeStatus = false
+                    this.isOcStatus = false
+                },
+                //关闭弹框
+                handleClose(done) {
+                    this.$confirm('确认关闭？')
+                        .then(_ => {
+                            done();
+                        })
+                        .catch(_ => { });
+                },
+                //根据id修改收货状态 1用户取消 2商家取消 3订单完成
+                handleOcStatus(ocStatus) {
+                    const params = {
+                        id: this.ordersDataInfo.id,
+                        ocStatus: ocStatus,
+                    }
+                    this.$confirm('该操作不可撤销，请确认！！', '提示', {
+                        'confirmButtonText': '确定',
+                        'cancelButtonText': '取消',
+                        'type': 'warning'
+                    }).then(() => {
+                        modifyOcStatus(params).then(res => {
+                            if (res.code === 1) {
+                                if (params.ocStatus === 3) {
+                                    this.$message.success('确认收货成功')
+                                    this.handleGetOrdersData()
+                                    this.editOrdersDV = false
+                                } else {
+                                    this.$message.success('订单取消成功')
+                                    this.handleGetOrdersData()
+                                    this.editOrdersDV = false
+                                }
+                            } else {
+                                this.$message.error(res.message || '操作失败')
+                            }
+                        }).catch(err => {
+                            this.$message.error('请求出错了：' + err)
+                        })
+                    })
+                },
+                //根据id修改出餐状态
+                handleSmStatus(smStatus) {
+                    const params = {
+                        id: this.ordersDataInfo.id,
+                        smStatus: smStatus,
+                    }
+                    this.$confirm('该操作不可撤销，请确认！！', '提示', {
+                        'confirmButtonText': '确定',
+                        'cancelButtonText': '取消',
+                        'type': 'warning'
+                    }).then(() => {
+                        modifySmStatus(params).then(res => {
+                            if (res.code === 1) {
+                                this.$message.success('该订单已经出餐')
+                                this.handleGetOrdersData()
+                                this.editOrdersDV = false
+                            } else {
+                                this.$message.error(res.message || '操作失败')
+                            }
+                        }).catch(err => {
+                            this.$message.error('请求出错了：' + err)
+                        })
+                    })
+                },
+                //根据id修改配送状态
+                handleDeStatus(deStatus) {
+                    const params = {
+                        id: this.ordersDataInfo.id,
+                        deStatus: deStatus,
+                    }
+                    this.$confirm('该操作不可撤销，请确认！！', '提示', {
+                        'confirmButtonText': '确定',
+                        'cancelButtonText': '取消',
+                        'type': 'warning'
+                    }).then(() => {
+                        modifyDeStatus(params).then(res => {
+                            if (res.code === 1) {
+                                this.$message.success('该订单正在配送')
+                                this.handleGetOrdersData()
+                                this.editOrdersDV = false
+                            } else {
+                                this.$message.error(res.message || '操作失败')
+                            }
+                        }).catch(err => {
+                            this.$message.error('请求出错了：' + err)
+                        })
+                    })
+                },
+                //修改订单评分
+                handleEditRating() {
+                    const params = {
+                        id: this.ordersDataInfo.id,
+                        cakeRating: this.editRate,
+                    }
+                    if (params.cakeRating != 0) {
+                        ///评分接口
+                        modifyCakeRating(params).then(res => {
+                            if (res.code === 1) {
+                                this.$message.success('评分修改成功')
+                                this.handleGetOrdersData()
+                                this.editRate = ""
+                                this.editRatingsDV = false
+                            } else {
+                                this.$message.error(res.message || '操作失败')
+                            }
+                        }).catch(err => {
+                            this.$message.error('请求出错了：' + err)
+                        })
+                    }
+                    this.$message.error('修改失败，没有设置评分')
+                    this.editRatingsDV = false
+                },
+                //取消修改评分
+                cancelEditRating() {
+                    this.editRate = ""
+                    this.editRatingsDV = false
+                },
+            }
+        })
+    </script>
+</body>
+
+</html>

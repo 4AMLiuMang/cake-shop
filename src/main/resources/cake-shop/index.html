@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奈川蛋糕店</title>
+    <link rel="shortcut icon" href="favicon.png">
+    <!-- 引入el样式 -->
+    <link rel="stylesheet" href="plugins/element-ui/index.css">
+    <link rel="stylesheet" href="styles/reset.css" />
+    <link rel="stylesheet" href="styles/index.css" />
+</head>
+
+<body>
+    <div class="app" id="app">
+        <div class="main-top">
+            <div class="main-top-back">
+                <!-- LOGO -->
+                <div class="main-top-left">
+                    <el-image src="images/LOGO.png" fit="fill" />
+                </div>
+                <!-- 导航栏 -->
+                <div class="main-top-center">
+                    <el-menu :default-active="activeIndex" class="el-menu" mode="horizontal" background-color="#545c64"
+                        text-color="#fff" active-text-color="#ffd04b">
+                        <el-menu-item class="el-menu-item" index="1" @click="menuHandle(menuList[0])">首页</el-menu-item>
+                        <el-menu-item class="el-menu-item" index="2" @click="menuHandle(menuList[1])">全部商品
+                        </el-menu-item>
+                        <el-menu-item class="el-menu-item" index="3" @click="menuHandle2(menuList[2])">我的订单
+                        </el-menu-item>
+                        <el-menu-item class="el-menu-item" index="4" @click="menuHandle2(menuList[3])">个人中心
+                        </el-menu-item>
+                    </el-menu>
+                </div>
+                <!-- 点击登录注册|点击查看更多信息 -->
+                <div class="main-top-right">
+                    <el-menu :default-active="activeIndex2" class="el-menu" mode="horizontal" background-color="#545c64"
+                        text-color="#fff" active-text-color="#ffd04b">
+                        <el-menu-item v-if="login" class="el-menu-item el-menu-item-login" v-popover:popover>
+                            <!-- 登录后的个人信息页面，点击头像触发 -->
+                            <el-popover placement="bottom" width="180" trigger="click" ref="popover">
+                                <div class="userInfo">
+                                    <p>账号：{{userInfo.userUsername}}</p>
+                                    <p>昵称：{{userInfo.userNickname}}</p>
+                                    <el-button class="elb" size="medium" type="primary"
+                                        @click="menuHandle(menuList[3]);activeIndex=4">
+                                        <span>个人中心</span>
+                                    </el-button>
+                                    <el-button class="elb" size="medium" type="primary"
+                                        @click="menuHandle(menuList[4]);activeIndex=0">
+                                        <span>我的评论</span>
+                                    </el-button>
+                                    <el-button class="elb" size="medium" type="primary" @click="editUserDV = true">
+                                        <span>修改地址</span>
+                                    </el-button>
+                                    <el-button class="elb" size="medium" type="danger" @click="logout">
+                                        <span>退出登录</span>
+                                    </el-button>
+                                </div>
+                            </el-popover>
+                            <el-avatar style="width: 50px; height: 50px; border:none; cursor: pointer;"
+                                :src="userInfo.userAvatar" fit="fill">
+                            </el-avatar>
+                        </el-menu-item>
+                        <el-menu-item v-else class="el-menu-item el-menu-item-login" @click="userDV = true">
+                            登录
+                        </el-menu-item>
+                    </el-menu>
+                </div>
+            </div>
+        </div>
+        <!-- 弹出框:用户登录页面 -->
+        <el-dialog title="欢迎登录奈川" :visible.sync="userDV" width="40%" height="500" :before-close="handleClose">
+            <br />
+            <br />
+            <br />
+            <br />
+            <div class="DV-box">
+                <el-form :model="userLogin" status-icon :rules="rules" ref="userLogin" label-width="100px">
+                    <div class="DV-box-child">
+                        <el-form-item label="" prop="userUsername">
+                            <el-input placeholder="请输入账号" v-model="userLogin.userUsername" autocomplete="off" clearable>
+                                <i slot="prefix" class="el-input__icon el-icon-user"></i>
+                            </el-input>
+                        </el-form-item>
+                    </div>
+                    <div class="DV-box-child">
+                        <el-form-item label="" prop="userPassword">
+                            <el-input type="password" placeholder="请输入密码" v-model="userLogin.userPassword"
+                                autocomplete="off" clearable show-password @keyup.enter.native="handleUserLogin">
+                                <i slot="prefix" class="el-input__icon el-icon-lock"></i>
+                            </el-input>
+                        </el-form-item>
+                    </div>
+                    <div class="DV-box-child">
+                        <el-form-item>
+                            <el-button type="primary" @click.native.prevent="handleUserLogin">
+                                &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp点击登录&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                            </el-button>
+                        </el-form-item>
+                    </div>
+                </el-form>
+                <div class="userDV-box-linkE">
+                    <el-link type="info" @click="userDV = false; employeeDV = true">员工入口</el-link>
+                </div>
+                <div class="userDV-box-linkR">
+                    <el-link type="primary" @click="userDV = false; registUserDV = true">没有账号?点我创建</el-link>
+                </div>
+            </div>
+        </el-dialog>
+        <!-- 弹出框:员工登录页面 -->
+        <el-dialog title="服务至上 客户第一" :visible.sync="employeeDV" width="40%" :before-close="handleClose">
+            <div class="DV-box">
+                <el-form :model="empLogin" status-icon :rules="rules" ref="empLogin" label-width="100px">
+                    <br />
+                    <br />
+                    <div class="DV-box-child">
+                        <el-form-item label="" prop="empUsername">
+                            <el-input placeholder="请输入账号" v-model="empLogin.empUsername" autocomplete="off" clearable>
+                                <i slot="prefix" class="el-input__icon el-icon-user"></i>
+                            </el-input>
+                        </el-form-item>
+                    </div>
+                    <div class="DV-box-child">
+                        <el-form-item label="" prop="empPassword">
+                            <el-input type="password" placeholder="请输入密码" v-model="empLogin.empPassword"
+                                autocomplete="off" clearable show-password @keyup.enter.native="handleEmpLogin">
+                                <i slot="prefix" class="el-input__icon el-icon-lock"></i>
+                            </el-input>
+                        </el-form-item>
+                    </div>
+                    <div>
+                        <el-form-item>
+                            <el-button type="primary" @click.native.prevent="handleEmpLogin" class="">
+                                &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp点击登录&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                            </el-button>
+                        </el-form-item>
+                    </div>
+                </el-form>
+                <div class="register-userDV-box-back">
+                    <el-button @click="employeeDV = false; userDV = true">返回</el-button>
+                </div>
+            </div>
+        </el-dialog>
+        <!-- 弹出框:用户注册页面 -->
+        <el-dialog title="欢迎注册奈川" :visible.sync="registUserDV" width="40%" :before-close="handleClose">
+            <div class="register-userDV-box">
+                <el-form :model="registerForm" status-icon :rules="rules" ref="registerForm" label-width="100px">
+                    <div class="DV-box-child">
+                        <el-form-item label="" prop="userUsername">
+                            <el-input placeholder="请输入账号" v-model="registerForm.userUsername" autocomplete="off"
+                                clearable>
+                                <i slot="prefix" class="el-input__icon el-icon-user"></i>
+                            </el-input>
+                        </el-form-item>
+                    </div>
+                    <div class="DV-box-child">
+                        <el-form-item label="" prop="userEmail">
+                            <el-input type="email" placeholder="请输入邮箱" v-model="registerForm.userEmail"
+                                autocomplete="off" clearable>
+                                <i slot="prefix" class="el-input__icon el-icon-message"></i>
+                            </el-input>
+                        </el-form-item>
+                    </div>
+                    <div class="DV-box-child">
+                        <el-form-item label="" prop="userPassword">
+                            <el-input type="password" placeholder="请输入密码" v-model="registerForm.userPassword"
+                                autocomplete="off" clearable show-password>
+                                <i slot="prefix" class="el-input__icon el-icon-lock"></i>
+                            </el-input>
+                        </el-form-item>
+                    </div>
+                    <div class="DV-box-child">
+                        <el-form-item label="" prop="reUserPassword">
+                            <el-input type="password" placeholder="请再次输入密码" v-model="registerForm.reUserPassword"
+                                autocomplete="off" clearable show-password @keyup.enter.native="handleRegister">
+                                <i slot="prefix" class="el-input__icon el-icon-lock"></i>
+                            </el-input>
+                        </el-form-item>
+                    </div>
+                    <div>
+                        <el-form-item>
+                            <el-button type="primary" @click.native.prevent="handleRegister" class="">
+                                &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp点击注册&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                            </el-button>
+                        </el-form-item>
+                    </div>
+                </el-form>
+                <div class="register-userDV-box-back">
+                    <el-button @click="registUserDV = false; userDV = true">返回</el-button>
+                </div>
+            </div>
+        </el-dialog>
+        <!-- 弹出框:修改地址页面 -->
+        <el-dialog title="修改个人地址" :visible.sync="editUserDV" width="40%" :before-close="handleClose">
+            <div>
+                <el-form :model="userData" status-icon :rules="rules" ref="userData" label-width="100px"
+                    class="demo-ruleForm">
+                    <div class="DV-box-child">
+                        <el-form-item label="" prop="userNickname">
+                            <el-input placeholder="请输入昵称" v-model="userData.userNickname" autocomplete="off" clearable>
+                                <i slot="prefix" class="el-input__icon el-icon-user"></i>
+                            </el-input>
+                        </el-form-item>
+                    </div>
+                    <div class="DV-box-child">
+                        <el-form-item label="" prop="userPhone">
+                            <el-input type="text" placeholder="请输入电话" v-model="userData.userPhone" autocomplete="off"
+                                clearable>
+                                <i slot="prefix" class="el-input__icon el-icon-mobile-phone"></i>
+                            </el-input>
+                        </el-form-item>
+                    </div>
+                    <div class="DV-box-child">
+                        <el-form-item label="" prop="userAddress">
+                            <el-input type="text" placeholder="请输入收货地址" v-model="userData.userAddress"
+                                autocomplete="off" clearable @keyup.enter.native="handleEdit">
+                                <i slot="prefix" class="el-input__icon el-icon-map-location"></i>
+                            </el-input>
+                        </el-form-item>
+                    </div>
+                    <div>
+                        <el-form-item>
+                            <el-button type="primary" @click.native.prevent="handleEdit" class="">
+                                &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp确认修改&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                            </el-button>
+                        </el-form-item>
+                    </div>
+                </el-form>
+            </div>
+        </el-dialog>
+        <!-- 中部页面显示区 -->
+        <div class="app-main" v-loading="loading">
+            <div class="divTmp" v-show="loading"></div>
+            <iframe id="cIframe" class="c_iframe" name="cIframe" :src="iframeUrl" width="100%" height="652px"
+                frameborder="0" frameborder="0" v-show="!loading"></iframe>
+        </div>
+    </div>
+    <!-- 引入vue -->
+    <script src="plugins/vue/vue.min.js"></script>
+    <!-- 引入el组件库 -->
+    <script src="plugins/element-ui/index.js"></script>
+    <!-- 引入axios -->
+    <script src="plugins/axios/axios.min.js"></script>
+    <!-- 引入输入校验 -->
+    <script src="js/validate.js"></script>
+    <!-- 引入拦截器 -->
+    <script src="js/request.js"></script>
+    <!-- 引入接口 -->
+    <script src="api/index.js"></script>
+    <script>
+        new Vue({
+            el: "#app",
+            data() {
+                return {
+                    userLogin: {
+                        userUsername: '123456',
+                        userPassword: '123456'
+                    },
+                    empLogin: {
+                        empUsername: 'administrator',
+                        empPassword: 'administrator'
+                    },
+                    registerForm: {
+                        userUsername: '',
+                        userEmail: '',
+                        userPassword: '',
+                        reUserPassword: '',
+                    },
+                    userData: {
+                        "id": "",
+                        "userUsername": "",
+                        "userPassword": "",
+                        "userNickname": "",
+                        "userAvatar": "",
+                        "userGender": "",
+                        "userPhone": "",
+                        "userEmail": "",
+                        "userAddress": "",
+                        "userStatus": "",
+                        "createTime": "",
+                        "updateTime": ""
+                    },
+                    userInfo: {},
+                    login: 0,
+                    visible: false,
+                    menuList: [
+                        {
+                            id: '1',
+                            url: 'page/front/homePage.html',
+                        },
+                        {
+                            id: '2',
+                            url: 'page/front/allCakes.html',
+                        },
+                        {
+                            id: '3',
+                            url: 'page/front/myOrders.html',
+                        },
+                        {
+                            id: '4',
+                            url: 'page/front/personal.html',
+                        },
+                        {
+                            id: '0',
+                            url: 'page/front/myComment.html',
+                        },
+                    ],
+                    activeIndex: '1',
+                    iframeUrl: 'page/front/homePage.html',
+                    activeIndex2: '0',
+                    loading: true,
+                    timer: null,
+                    userDV: false,
+                    employeeDV: false,
+                    registUserDV: false,
+                    editUserDV: false,
+                }
+            },
+            computed: {
+                rules() {
+                    var checkRePassWord = (rule, value, callback) => {
+                        if (value == "") {
+                            callback(new Error("请输入密码"))
+                        } else if (value.length > 20 || value.length < 6) {
+                            callback(new Error("密码长度应是6-20"))
+                        } else if (value != this.registerForm.userPassword) {
+                            callback(new Error("两次密码不一致"))
+                        } else {
+                            callback()
+                        }
+                    }
+                    return {
+                        // 验证账号
+                        userUsername: [{ required: false, 'validator': checkUserName, trigger: 'blur' }],
+                        empUsername: [{ required: false, 'validator': checkUserName, trigger: 'blur' }],
+                        // 验证邮箱
+                        userEmail: [{ required: false, 'validator': checkEmail, trigger: 'blur' }],
+                        // 验证密码
+                        userPassword: [{ required: false, 'validator': checkPassWord, trigger: 'blur' }],
+                        empPassword: [{ required: false, 'validator': checkPassWord, trigger: 'blur' }],
+                        oldPassword: [{ required: false, 'validator': checkPassWord, trigger: 'blur' }],
+                        // 验证二次密码
+                        reUserPassword: [{ required: false, 'validator': checkRePassWord, trigger: 'blur' }],
+                        // 验证昵称
+                        userNickname: [{ required: false, 'validator': checkName, trigger: 'blur' }],
+                        // 验证手机号
+                        userPhone: [{ required: false, 'validator': checkPhone, trigger: 'blur' }],
+                        // 验证地址
+                        userAddress: [{ required: false, 'validator': checkAddress, trigger: 'blur' }],
+                    }
+                }
+            },
+            created() {
+                this.userInfo = JSON.parse(window.localStorage.getItem('userInfo'))
+                if (this.userInfo != null) {
+                    this.userData = this.userInfo
+                }
+                this.init()
+                this.closeLoading()
+            },
+            beforeDestroy() {
+                this.timer = null
+                clearTimeout(this.timer)
+            },
+            mounted() {
+                window.menuHandle = this.menuHandle
+                window.logout = this.logout
+            },
+            methods: {
+                // 验证用户是否登录
+                init() {
+                    if (this.userInfo != null) {
+                        this.login = 1
+                    }
+                },
+                // 员工登录
+                async handleEmpLogin() {
+                    this.$refs.empLogin.validate(async (valid) => {
+                        if (valid) {
+                            let res = await empLoginApi(this.empLogin)
+                            if (String(res.code) === '1') {
+                                window.localStorage.setItem('employeeInfo', JSON.stringify(res.data))
+                                window.location.href = '/cake-shop/page/index.html'
+                            } else {
+                                this.$message.error(res.message)
+                            }
+                        }
+                    })
+                },
+                // 用户登录
+                async handleUserLogin() {
+                    this.$refs.userLogin.validate(async (valid) => {
+                        if (valid) {
+                            let res = await userLoginApi(this.userLogin)
+                            if (String(res.code) === '1') {
+                                window.localStorage.setItem('userInfo', JSON.stringify(res.data))
+                                window.location.href = '/cake-shop/index.html'
+                            } else {
+                                this.$message.error(res.message)
+                            }
+                        }
+                    })
+                },
+                // 注册用户
+                async handleRegister() {
+                    this.$refs.registerForm.validate(async (valid) => {
+                        if (valid) {
+                            const params = {
+                                ...this.registerForm,
+                            }
+                            delete params.reUserPassword
+                            let res = await userRegisterApi(params)
+                            if (String(res.code) === '1') {
+                                this.userLogin.userUsername = params.userUsername
+                                this.userLogin.userPassword = params.userPassword
+                                this.registUserDV = false
+                                this.userDV = true
+                                this.$message.success(res.data)
+                            } else {
+                                this.$message.error(res.message)
+                            }
+                        }
+                    })
+                },
+                // 用户退出
+                logout() {
+                    logoutApi().then((res) => {
+                        if (res.code === 1) {
+                            window.localStorage.removeItem('userInfo')
+                            window.location.href = '/cake-shop/index.html'
+                        }
+                    })
+                },
+                // 修改用户地址，本质就是更新操作
+                async handleEdit(userData) {
+                    this.$refs.userData.validate(async (valid) => {
+                        if (valid) {
+                            const params = {
+                                ...this.userData,
+                            }
+                            delete params.updateTime
+                            editUserApi(params).then(res => {
+                                if (res.code === 1) {
+                                    window.localStorage.setItem('userInfo', JSON.stringify(this.userData))
+                                    this.$message.success('用户信息修改成功！')
+                                    this.editUserDV = false
+                                } else {
+                                    this.$message.error(res.message || '操作失败')
+                                }
+                            }).catch(err => {
+                                this.$message.error('请求出错了：' + err)
+                            })
+                        } else {
+                            console.log('error submit!!')
+                            return false
+                        }
+                    })
+                },
+                //页面跳转
+                menuHandle(item) {
+                    this.loading = true
+                    this.iframeUrl = item.url
+                    this.activeIndex = item.id
+                    this.closeLoading()
+                },
+                //页面跳转2
+                menuHandle2(item) {
+                    if (this.login == 1) {
+                        this.loading = true
+                        this.iframeUrl = item.url
+                        this.closeLoading()
+                    } else {
+                        this.menuHandle(this.menuList[0])
+                        this.$message.error("您还未登录,请先登录")
+                        this.userDV = true
+                        this.activeIndex = 1
+                    }
+                },
+                //关闭页面加载,假的
+                closeLoading() {
+                    this.timer = null
+                    this.timer = setTimeout(() => {
+                        this.loading = false
+                    }, 1000)
+                },
+                //登录框关闭
+                handleClose(done) {
+                    this.$confirm('确认关闭？')
+                        .then(_ => {
+                            done();
+                        })
+                        .catch(_ => { });
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

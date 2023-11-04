@@ -1,0 +1,122 @@
+/* body {
+  width: 100%;
+  height: 100%;
+} */
+
+.main-top {
+  position: relative;
+  width: 100%;
+  height: 90px;
+  background-color: #4aa4ff;
+}
+
+.main-top-back {
+  position: absolute;
+  width: 100%;
+  height: 80px;
+  background-color: #545c64;
+}
+
+.main-top-left {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  left: 8%;
+  top: 0px;
+}
+
+.main-top-center {
+  position: absolute;
+  width: 800px;
+  height: 70px;
+  left: 20%;
+}
+
+.main-top-right {
+  position: absolute;
+  /* width: 100px;
+  height: 80px;
+  background-color: aqua; */
+  right: 10%;
+}
+
+.userInfo {
+  width: 180px;
+  height: 250px;
+}
+
+.userInfo>p {
+  font-size: 16px;
+  margin-top: 10px;
+  margin-left: 7%;
+}
+
+.userInfo>.elb {
+  width: 70%;
+  margin-left: 15%;
+  margin-top: 10px;
+}
+
+.DV-box {
+  position: relative;
+  height: 300px;
+}
+
+.DV-box-child {
+  width: 80%;
+}
+
+.userDV-box-linkE {
+  position: absolute;
+  right: 10%;
+  bottom: 15%;
+}
+
+.userDV-box-linkR {
+  position: absolute;
+  right: 10%;
+  bottom: 5%;
+}
+
+.register-userDV-box {
+  position: relative;
+  height: 360px;
+}
+
+.register-userDV-box-back {
+  position: absolute;
+  right: 10%;
+  bottom: 5%;
+}
+
+/* 设置导航栏下方的页面大小 */
+.app-main .divTmp {
+  width: 100%;
+  height: 100%;
+}
+
+/* 修改element-ui的默认样式以贴合个人实际使用 */
+.el-menu {
+  height: 80px;
+}
+
+.el-menu-item {
+  width: 200px;
+  text-align: center;
+  font-size: 18px;
+}
+
+.el-menu-item-login {
+  width: 100px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.el-menu--horizontal>.el-menu-item {
+  float: left;
+  height: 80px;
+  line-height: 80px;
+  margin: 0;
+  border-bottom: 2px solid transparent;
+  color: #909399;
+}

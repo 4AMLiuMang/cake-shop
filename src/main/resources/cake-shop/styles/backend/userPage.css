@@ -1,0 +1,158 @@
+.app {
+  width: 100%;
+}
+
+.demo-table-expand {
+  font-size: 0;
+}
+
+.demo-table-expand label {
+  width: 100px;
+  color: #99a9bf;
+}
+
+.demo-table-expand .el-form-item {
+  margin-left: 50px;
+  margin-bottom: 5px;
+  width: 40%;
+}
+
+.el-table .warning-row {
+  background: rgb(255, 255, 114);
+}
+
+.el-table .danger-row {
+  background: #ffe0e0;
+}
+
+.el-table .success-row {
+  background: #e5ffeb;
+}
+
+.el-table .primary-row {
+  background: #70a0ff;
+}
+
+.pageList {
+  margin-top: 5px;
+  margin-left: 10%;
+}
+
+.table-top {
+  position: relative;
+  width: 100%;
+  height: 80px;
+}
+
+.head-all-input-input {
+  width: 180px;
+  margin-left: 10px;
+  margin-top: 20px;
+}
+
+.head-all-input-botton {
+  width: 100px;
+}
+
+.table-botton {
+  position: absolute;
+  right: 15px;
+  top: 20px;
+}
+
+.editUser-box {
+  position: relative;
+  width: 100%;
+  height: 495px;
+}
+
+.edit-user-input {
+  width: 400px;
+}
+
+.editUser-userAvatar {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.editUser-userAvatarr-uploader {
+  width: 80px;
+  height: 80px;
+}
+
+.editUser-userUsername {
+  position: absolute;
+  width: 550px;
+  height: 60px;
+  /* background-color: #fefb99; */
+  left: 50%;
+  transform: translateX(-50%);
+  top: 17%;
+}
+
+.editUser-userNickname {
+  position: absolute;
+  width: 550px;
+  height: 60px;
+  /* background-color: #fefb99; */
+  left: 50%;
+  transform: translateX(-50%);
+  top: 30%;
+}
+
+.editUser-userGender {
+  position: absolute;
+  width: 550px;
+  height: 40px;
+  /* background-color: #fefb99; */
+  left: 50%;
+  transform: translateX(-50%);
+  top: 43%;
+}
+
+.editUser-userEmail {
+  position: absolute;
+  width: 550px;
+  height: 60px;
+  /* background-color: #fefb99; */
+  left: 50%;
+  transform: translateX(-50%);
+  top: 52%;
+}
+
+.editUser-userPhone {
+  position: absolute;
+  width: 550px;
+  height: 60px;
+  /* background-color: #fefb99; */
+  left: 50%;
+  transform: translateX(-50%);
+  top: 65%;
+}
+
+.editUser-userAddress {
+  position: absolute;
+  width: 550px;
+  height: 60px;
+  /* background-color: #fefb99; */
+  left: 50%;
+  transform: translateX(-50%);
+  top: 78%;
+}
+
+.editUser-button1 {
+  position: absolute;
+  width: 120px;
+  left: 40%;
+  top: 83%;
+}
+
+.editUser-button2 {
+  position: absolute;
+  width: 120px;
+  left: 50%;
+  top: 83%;
+}

@@ -1,0 +1,402 @@
+.app {
+  position: relative;
+  width: 100%;
+  height: 652px;
+}
+
+.orderInfo{
+  position: relative;
+  width: 100%;
+  height: 500px;
+  background-color: rgba(89, 255, 255, 0.2);
+}
+.orderInfo-box{
+  position: absolute;
+  width: 50%;
+  height: 220px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.orderInfo-img{
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  top: 15%;
+  left: 10%;
+  background-color: rgb(255, 240, 223);
+}
+.orderInfo-cakeName{
+  position: absolute;
+  font-size: 28px;
+  width: 450px;
+  height: 30px;
+  top: 15%;
+  left: 32%;
+}
+.orderInfo-cakeType{
+  position: absolute;
+  font-size: 28px;
+  width: 450px;
+  height: 30px;
+  top: 35%;
+  left: 32%;
+}
+.orderInfo-cakePrice{
+  position: absolute;
+  font-size: 20px;
+  width: 450px;
+  height: 25px;
+  top: 55%;
+  left: 32%;
+}
+.orderInfo-createTime{
+  position: absolute;
+  font-size: 16px;
+  width: 450px;
+  height: 25px;
+  top: 73%;
+  left: 32%;
+}
+.steps-box{
+  position: absolute;
+  width: 55%;
+  height: 200px;
+  top: 45%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.button-box{
+  position: absolute;
+  width: 30%;
+  height: 50px;
+  top: 90%;
+  text-align: center;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.order-button{
+  width: 120px;
+}
+
+.cardDV {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  /* background-color: #00DBDE; */
+}
+
+.cardDV-cakeImg {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  background-color: rgba(251, 255, 0, 0.1);
+  top: 0px;
+  left: 0%;
+}
+
+.cardDV-cakeName {
+  position: absolute;
+  width: 200px;
+  height: 65px;
+  /* background-color: #f59c9c; */
+  top: 3%;
+  left: 330px;
+  font-size: 30px;
+  font-family: STKaiti;
+  color: #ff0000;
+}
+
+.cardDV-cakeType {
+  position: absolute;
+  width: 160px;
+  height: 35px;
+  /* background-color: #ffffff; */
+  top: 3%;
+  left: 565px;
+  font-size: 16px;
+  font-family: STKaiti;
+  color: #747474;
+}
+
+.cardDV-updateTime {
+  position: absolute;
+  width: 160px;
+  height: 35px;
+  /* background-color: #ffffff; */
+  top: 15%;
+  left: 565px;
+  font-size: 16px;
+  font-family: STKaiti;
+  color: #747474;
+}
+
+.cardDV-cakeIntro {
+  position: absolute;
+  width: 230px;
+  height: 140px;
+  /* background-color: #f43a3a; */
+  top: 24%;
+  left: 330px;
+  font-size: 16px;
+  font-family: STKaiti;
+  color: #747474;
+}
+
+.cardDV-cakePrice {
+  position: absolute;
+  width: 200px;
+  height: 35px;
+  /* background-color: #ffffff; */
+  top: 70%;
+  left: 330px;
+  font-size: 28px;
+  font-family: STKaiti;
+  color: #ff0000;
+}
+
+.cardDV-cakeTotal {
+  position: absolute;
+  width: 200px;
+  height: 35px;
+  /* background-color: #ffffff; */
+  top: 30%;
+  left: 565px;
+  font-size: 16px;
+  font-family: STKaiti;
+  color: #747474;
+}
+
+.cardDV-cakeRating {
+  position: absolute;
+  width: 200px;
+  height: 35px;
+  /* background-color: #ffffff; */
+  top: 85%;
+  left: 330px;
+  font-family: STKaiti;
+}
+
+.cardDV-showComment {
+  position: absolute;
+  width: 120px;
+  height: 35px;
+  /* background-color: #ffffff; */
+  top: 45%;
+  left: 565px;
+}
+
+.buyDV {
+  position: relative;
+  width: 100%;
+  height: 300px;
+}
+
+.buyDV-cakeImg {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  left: 10%;
+}
+
+.buyDV-cakeName {
+  position: absolute;
+  width: 280px;
+  height: 35px;
+  font-family: STKaiti;
+  font-size: 30px;
+  color: #ff0000;
+  top: 10%;
+  left: 40%;
+  /* background-color: #00DBDE; */
+}
+
+.buyDV-cakePrice {
+  position: absolute;
+  width: 280px;
+  height: 35px;
+  font-family: STKaiti;
+  font-size: 24px;
+  color: #ff0000;
+  top: 30%;
+  left: 40%;
+}
+
+.buyDV-userNickname {
+  position: absolute;
+  width: 380px;
+  height: 25px;
+  font-family: STKaiti;
+  font-size: 18px;
+  top: 55%;
+  left: 10%;
+}
+
+.buyDV-userPhone {
+  position: absolute;
+  width: 280px;
+  height: 25px;
+  font-family: STKaiti;
+  font-size: 18px;
+  top: 64%;
+  left: 28%;
+}
+
+.buyDV-userAddress {
+  position: absolute;
+  width: 350px;
+  height: 75px;
+  font-size: 18px;
+  top: 73%;
+  font-family: STKaiti;
+  left: 28%;
+}
+
+.buyDV-CollectionCode {
+  position: absolute;
+  width: 80px;
+  height: 25px;
+  color: #ff0000;
+  top: 55%;
+  right: 2%;
+  font-family: STKaiti;
+  font-size: 18px;
+}
+
+.buyDV-CollectionCode-img {
+  position: absolute;
+  width: 55px;
+  height: 55px;
+  top: 65%;
+  right: 4%;
+}
+
+.buyDV-QRC {
+  position: relative;
+  width: 210px;
+  height: 105px;
+}
+
+.buyDV-QRC-img1 {
+  position: absolute;
+  left: 0%;
+}
+
+.buyDV-QRC-img2 {
+  position: absolute;
+  right: 0%;
+}
+
+.CommentDV {
+  position: relative;
+  width: 100%;
+  height: 400px;
+}
+
+.CommentDV-info {
+  position: relative;
+  width: 800px;
+  height: 200px;
+  /* background-color: #b0d9ff; */
+  margin-bottom: 15px;
+  margin-left: 10%;
+  border: #b0d9ff solid 3px;
+}
+
+.CommentDV-info-userAvatar {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  /* background-color: #000000; */
+  /* border: #f59c9c solid 2px; */
+  left: 5px;
+  top: 2px;
+}
+
+.CommentDV-info-userNickname {
+  position: absolute;
+  width: 200px;
+  height: 25px;
+  font-size: 18px;
+  left: 68px;
+  top: 5px;
+  font-family: STKaiti;
+  /* background-color: #f59c9c; */
+}
+
+.CommentDV-info-createTime {
+  position: absolute;
+  width: 200px;
+  height: 25px;
+  font-size: 16px;
+  left: 68px;
+  top: 33px;
+  font-family: STKaiti;
+  /* background-color: #f59c9c; */
+}
+
+.CommentDV-info-cmtContent {
+  position: absolute;
+  width: 797px;
+  height: 132px;
+  font-size: 16px;
+  top: 65px;
+  /* background-color: #f59c9c; */
+  border: #f59c9c solid 2px;
+  font-family: STKaiti;
+}
+
+.CommentDV-button1 {
+  position: fixed;
+  width: 120px;
+  right: 20%;
+  top: 3%;
+}
+
+.CommentDV-button2 {
+  position: fixed;
+  width: 120px;
+  right: 10%;
+  top: 3%;
+}
+
+.CommentDV-button {
+  width: 120px;
+}
+
+.addComment{
+  position: relative;
+  width: 100%;
+  height: 200px;
+}
+.addComment-text1{
+  position: absolute;
+  width: 50px;
+  height: 20px;
+  font-size: 18px;
+  top: 20%;
+  left: 10%;
+}
+.addComment-text2{
+  position: absolute;
+  width: 50px;
+  height: 20px;
+  font-size: 18px;
+  top: 80%;
+  left: 10%;
+}
+.addComment-input{
+  position: absolute;
+  width: 400px;
+  left: 55%;
+  transform: translateX(-50%);
+  top: 20%;
+  z-index: 100;
+}
+.addComment-rate{
+  position: absolute;
+  left: 20%;
+  top: 80%;
+}
+.addComment-button{
+  width: 100px;
+}

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奈川蛋糕店</title>
+    <link rel="shortcut icon" href="../favicon.png">
+    <!-- 引入el样式 -->
+    <link rel="stylesheet" href="../plugins/element-ui/index.css">
+    <link rel="stylesheet" href="../styles/reset.css" />
+    <link rel="stylesheet" href="../styles/backend/index.css" />
+</head>
+
+<body>
+    <div class="app" id="app">
+        <div class="main-page">
+            <!-- LOGO -->
+            <div class="page-top-left">
+                <el-image style="width: 80px;height:80px;" src="../images/LOGO.png" fit="fill" />
+            </div>
+            <!-- 导航栏 -->
+            <div class="page-button-left">
+                <el-menu :default-active="activeIndex" class="el-menu-vertical-demo" background-color="#545c64"
+                    text-color="#fff" active-text-color="#ffd04b">
+                    <el-menu-item class="menu-item" index="1" @click="menuHandle(menuList[0])">
+                        <i class="el-icon-user"></i>
+                        <span slot="title">用户管理</span>
+                    </el-menu-item>
+                    <el-menu-item v-if="isAdmin" class="menu-item" index="2" @click="menuHandle(menuList[1])">
+                        <i class="el-icon-service"></i>
+                        <span slot="title">员工管理</span>
+                    </el-menu-item>
+                    <el-menu-item class="menu-item" index="3" @click="menuHandle(menuList[2])">
+                        <i class="el-icon-dish-1"></i>
+                        <span slot="title">蛋糕管理</span>
+                    </el-menu-item>
+                    <el-menu-item class="menu-item" index="4" @click="menuHandle(menuList[3])">
+                        <i class="el-icon-chat-dot-square"></i>
+                        <span slot="title">评论管理</span>
+                    </el-menu-item>
+                    <el-menu-item class="menu-item" index="5" @click="menuHandle(menuList[4])">
+                        <i class="el-icon-document"></i>
+                        <span slot="title">订单管理</span>
+                    </el-menu-item>
+                </el-menu>
+            </div>
+            <!-- 欢迎栏 -->
+            <div class="page-top-right">
+                <div class="page-top-right-text">欢迎你:&nbsp;&nbsp;{{employeeData.empNickname}}</div>
+                <div class="page-top-right-img">
+                    <el-menu :default-active="activeIndex2" class="el-menu" background-color="#fff1f1" text-color="#000"
+                        active-text-color="#ffd04b">
+                        <el-menu-item class="el-menu-item el-menu-item-login" v-popover:popover>
+                            <el-popover placement="bottom" width="180" trigger="click" ref="popover">
+                                <div class="employeeInfo">
+                                    <p>账号：{{employeeData.empUsername}}</p>
+                                    <p>昵称：{{employeeData.empNickname}}</p>
+                                    <el-button class="elb" size="medium" type="primary" @click="showEmpInfoDV = true">
+                                        <span>个人信息</span>
+                                    </el-button>
+                                    <el-button class="elb" size="medium" type="primary" @click="editEmpDV = true">
+                                        <span>修改信息</span>
+                                    </el-button>
+                                    <el-button class="elb" size="medium" type="primary" @click="editPwdDV = true">
+                                        <span>修改密码</span>
+                                    </el-button>
+                                    <el-button class="elb" size="medium" type="danger" @click="logout">
+                                        <span>退出登录</span>
+                                    </el-button>
+                                </div>
+                            </el-popover>
+                            <el-avatar style="width: 50px; height: 50px; border:none; cursor: pointer;"
+                                :src="employeeData.empAvatar" fit="fill">
+                            </el-avatar>
+                        </el-menu-item>
+                    </el-menu>
+                </div>
+            </div>
+            <div class="page-top-right-line"></div>
+            <!-- 中部页面显示区 -->
+            <div class="page-button-right" v-loading="loading">
+                <div class="divTmp" v-show="loading"></div>
+                <iframe id="cIframe" class="c_iframe" name="cIframe" :src="iframeUrl" width="100%" height="664px"
+                    frameborder="0" frameborder="0" v-show="!loading"></iframe>
+            </div>
+        </div>
+        <!--员工资料显示-->
+        <div>
+            <el-dialog title="员工信息" :visible.sync="showEmpInfoDV" width="40%" :before-close="handleClose">
+                <div class="ub-box">
+                    <div class="ub-userAvatar">
+                        <el-avatar style="width: 80px; height: 80px" shape="square" size="large"
+                            :src="employeeData.empAvatar" fit="fill"></el-avatar>
+                    </div>
+                    <div class="ub-userNickname">姓名:{{employeeData.empNickname}}</div>
+                    <div class="ub-userGender">性别:{{employeeData.empGender == 1 ? '男' : '女'}}</div>
+                    <div class="ub-userUsername">账号:{{employeeData.empUsername}}</div>
+                    <div class="ub-userPhone">手机:{{employeeData.empPhone}}</div>
+                    <div class="ub-userEmail">邮箱:{{employeeData.empEmail}}</div>
+                    <div class="ub-userID">身份证:{{employeeData.empIdentity}}</div>
+                    <div class="ub-userAddress">地址:{{employeeData.empAddress}}</div>
+                    <div class="ub-createTime">入职时间:{{employeeData.createTime}}</div>
+                </div>
+                <span slot="footer" class="dialog-footer">
+                    <el-button type="primary" @click="editEmpDV = true">修改信息</el-button>
+                    <el-button type="primary" @click="editPwdDV = true">修改密码</el-button>
+                    <el-button type="primary" @click="showEmpInfoDV = false">返 回</el-button>
+                </span>
+            </el-dialog>
+        </div>
+        <!-- 修改密码弹窗 -->
+        <div>
+            <el-dialog title="密码修改后将重新登录" v-if="editPwdDV" :visible.sync="editPwdDV" width="40%"
+                :before-close="handleClose">
+                <div>
+                    <el-form :model="editPwd" status-icon :rules="rules" ref="editPwd" label-width="100px">
+                        <el-form-item label="" prop="oldPassword">
+                            <el-input class="edit-pwd-input" prefix-icon="el-icon-lock" placeholder="请输入原密码"
+                                v-model="editPwd.oldPassword" show-password clearable></el-input>
+                        </el-form-item>
+                        <br />
+                        <el-form-item label="" prop="empPassword">
+                            <el-input class="edit-pwd-input" prefix-icon="el-icon-lock" placeholder="请输入新密码"
+                                v-model="editPwd.empPassword" show-password clearable></el-input>
+                        </el-form-item>
+                        <br />
+                        <el-form-item label="" prop="reEmpPassword">
+                            <el-input class="edit-pwd-input" prefix-icon="el-icon-lock" placeholder="请再次输入新密码"
+                                v-model="editPwd.reEmpPassword" show-password clearable></el-input>
+                        </el-form-item>
+                    </el-form>
+                </div>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="caneclEditPwd">取消修改</el-button>
+                    <el-button type="primary" @click="confirmEditPwd(editPwd)">确定修改</el-button>
+                </span>
+            </el-dialog>
+        </div>
+        <!-- 修改资料弹窗 -->
+        <div>
+            <el-dialog title="修改员工资料" :visible.sync="editEmpDV" width="50%" fullscreen :before-close="handleClose">
+                <div>
+                    <el-form :model="employeeDataTmp" status-icon :rules="rules" ref="employeeDataTmp"
+                        label-width="100px">
+                        <div class="editUser-box">
+                            <div class="editUser-userAvatar">
+                                <el-upload class="editUser-userAvatar-uploader"
+                                    action="http://localhost:8088/oss/avatarUpload" :show-file-list="false"
+                                    :on-success="handleAvatarSuccess" :before-upload="beforeUpload">
+                                    <el-avatar v-if="employeeDataTmp.empAvatar" style="width: 80px; height: 80px"
+                                        shape="square" size="large" :src="employeeDataTmp.empAvatar" fit="fill">
+                                    </el-avatar>
+                                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                </el-upload>
+                            </div>
+                            <div class="editUser-userUsername">
+                                <el-form-item label="账号:" prop="empUsername">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-user" placeholder="请输入账号"
+                                        v-model="employeeDataTmp.empUsername" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userNickname">
+                                <el-form-item label="昵称:" prop="empNickname">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-user" placeholder="请输入昵称"
+                                        v-model="employeeDataTmp.empNickname" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userGender">
+                                <el-form-item label="性别:" prop="empGender">
+                                    <el-radio-group v-model="employeeDataTmp.empGender">
+                                        <el-radio label="男"></el-radio>
+                                        <el-radio label="女"></el-radio>
+                                    </el-radio-group>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userEmail">
+                                <el-form-item label="邮箱:" prop="empEmail">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-message" placeholder="请输入邮箱"
+                                        v-model="employeeDataTmp.empEmail" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userPhone">
+                                <el-form-item label="手机:" prop="empPhone">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-mobile-phone"
+                                        placeholder="请输入手机" v-model="employeeDataTmp.empPhone" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userID">
+                                <el-form-item label="身份证:" prop="empIdentity">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-mobile-phone"
+                                        placeholder="请输入身份证" v-model="employeeDataTmp.empIdentity" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userAddress">
+                                <el-form-item label="地址:" prop="empAddress">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-map-location"
+                                        placeholder="请输入收货地址" v-model="employeeDataTmp.empAddress" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                        </div>
+                    </el-form>
+                    <el-button class="editUser-button1" @click="caneclEditUser">取消修改</el-button>
+                    <el-button class="editUser-button2" type="primary" @click="confirmEditEmp(employeeDataTmp)">确定修改
+                    </el-button>
+                </div>
+            </el-dialog>
+        </div>
+    </div>
+    <!-- 引入vue -->
+    <script src="../plugins/vue/vue.min.js"></script>
+    <!-- 引入el组件库 -->
+    <script src="../plugins/element-ui/index.js"></script>
+    <!-- 引入axios -->
+    <script src="../plugins/axios/axios.min.js"></script>
+    <!-- 引入输入校验 -->
+    <script src="../js/validate.js"></script>
+    <!-- 引入拦截器 -->
+    <script src="../js/request.js"></script>
+    <!-- 引入接口 -->
+    <script src="../api/backend/index.js"></script>
+    <script>
+        new Vue({
+            el: "#app",
+            data() {
+                return {
+                    isAdmin: false,
+                    employeeInfo: {},
+                    employeeData: {
+                        "id": "",
+                        "empUsername": "",
+                        "empPassword": "",
+                        "empNickname": "",
+                        "empAvatar": "",
+                        "empGender": "",
+                        "empPhone": "",
+                        "empIdentity": "",
+                        "empEmail": "",
+                        "empAddress": "",
+                        "empStatus": "",
+                        "createTime": "",
+                        "updateTime": ""
+                    },
+                    menuList: [
+                        {
+                            id: '1',
+                            url: 'user/userPage.html',
+                        },
+                        {
+                            id: '2',
+                            url: 'employee/employeePage.html',
+                        },
+                        {
+                            id: '3',
+                            url: 'cake/cakePage.html',
+                        },
+                        {
+                            id: '4',
+                            url: 'comment/commentPage.html',
+                        },
+                        {
+                            id: '5',
+                            url: 'orders/ordersPage.html',
+                        },
+                    ],
+                    activeIndex: '1',
+                    activeIndex2: '0',
+                    iframeUrl: 'user/userPage.html',
+                    loading: true,
+                    timer: null,
+                    showEmpInfoDV: false,
+                    editEmpDV: false,
+                    employeeDataTmp: {
+                        "id": "",
+                        "empUsername": "",
+                        "empPassword": "",
+                        "empNickname": "",
+                        "empAvatar": "",
+                        "empGender": "",
+                        "empPhone": "",
+                        "empIdentity": "",
+                        "empEmail": "",
+                        "empAddress": "",
+                        "empStatus": "",
+                        "createTime": "",
+                        "updateTime": ""
+                    },
+                    employeeDataNull: {
+                        "id": "",
+                        "empUsername": "",
+                        "empPassword": "",
+                        "empNickname": "",
+                        "empAvatar": "",
+                        "empGender": "",
+                        "empPhone": "",
+                        "empIdentity": "",
+                        "empEmail": "",
+                        "empAddress": "",
+                        "empStatus": "",
+                        "createTime": "",
+                        "updateTime": ""
+                    },
+                    editPwdDV: false,
+                    editPwd: {
+                        oldPassword: "",
+                        empPassword: "",
+                        reEmpPassword: "",
+                    },
+                }
+            },
+            computed: {
+                rules() {
+                    var checkRePassWord = (rule, value, callback) => {
+                        if (value == "") {
+                            callback(new Error("请输入密码"))
+                        } else if (value.length > 20 || value.length < 6) {
+                            callback(new Error("密码长度应是6-20"))
+                        } else if (value != this.editPwd.empPassword) {
+                            callback(new Error("两次密码不一致"))
+                        } else {
+                            callback()
+                        }
+                    }
+                    return {
+                        // 验证账号
+                        userUsername: [{ required: false, 'validator': checkUserName, trigger: 'blur' }],
+                        empUsername: [{ required: false, 'validator': checkUserName, trigger: 'blur' }],
+                        // 验证邮箱
+                        empEmail: [{ required: false, 'validator': checkEmail, trigger: 'blur' }],
+                        // 验证密码
+                        userPassword: [{ required: false, 'validator': checkPassWord, trigger: 'blur' }],
+                        empPassword: [{ required: false, 'validator': checkPassWord, trigger: 'blur' }],
+                        oldPassword: [{ required: false, 'validator': checkPassWord, trigger: 'blur' }],
+                        // 验证二次密码
+                        reEmpPassword: [{ required: false, 'validator': checkRePassWord, trigger: 'blur' }],
+                        // 验证昵称
+                        empNickname: [{ required: false, 'validator': checkName, trigger: 'blur' }],
+                        // 验证手机号
+                        empPhone: [{ required: false, 'validator': checkPhone, trigger: 'blur' }],
+                        // 验证地址
+                        empAddress: [{ required: false, 'validator': checkAddress, trigger: 'blur' }],
+                        // 验证身份证
+                        empIdentity: [{ required: false, 'validator': validID, trigger: 'blur' }],
+                    }
+                }
+            },
+            created() {
+                this.employeeInfo = JSON.parse(window.localStorage.getItem('employeeInfo'))
+                if (this.employeeInfo != null) {
+                    this.employeeData = this.employeeInfo
+                }
+                this.init()
+                this.employeeDataTmp = JSON.parse(localStorage.getItem('employeeInfo'))
+                this.employeeDataTmp.empGender = JSON.parse(localStorage.getItem('employeeInfo')).empGender === 0 ? '女' : '男'
+                this.closeLoading()
+            },
+            beforeDestroy() {
+                this.timer = null
+                clearTimeout(this.timer)
+            },
+            mounted() {
+            },
+            methods: {
+                //判断登录者是不是管理员
+                init() {
+                    if (this.employeeData.empUsername === "administrator") {
+                        this.isAdmin = true
+                    } else {
+                        this.isAdmin = false
+                    }
+                },
+                //关闭页面加载,假的
+                closeLoading() {
+                    this.timer = null
+                    this.timer = setTimeout(() => {
+                        this.loading = false
+                    }, 1000)
+                },
+                //页面跳转
+                menuHandle(item) {
+                    this.loading = true
+                    this.iframeUrl = item.url
+                    this.activeIndex = item.id
+                    this.closeLoading()
+                },
+                // 用户退出
+                logout() {
+                    logoutApi().then((res) => {
+                        if (res.code === 1) {
+                            window.localStorage.removeItem('employeeInfo')
+                            window.location.href = '/cake-shop/index.html'
+                        }
+                    })
+                },
+                //取消修改密码
+                caneclEditPwd() {
+                    this.editPwd.oldPassword = ""
+                    this.editPwd.empPassword = ""
+                    this.editPwd.reEmpPassword = ""
+                    this.editPwdDV = false
+                },
+                //确定修改密码
+                async confirmEditPwd(editPwd) {
+                    this.$refs.editPwd.validate(async (valid) => {
+                        if (valid) {
+                            const params = {
+                                id: this.employeeData.id,
+                                ...this.editPwd,
+                            }
+                            delete params.reEmpPassword
+                            console.log(params)
+                            editEmpPwdApi(params).then(res => {
+                                if (res.code === 1) {
+                                    this.$message.success('用户密码修改成功！')
+                                    this.editPwdDV = false
+                                    this.logout()
+                                } else {
+                                    this.$message.error(res.message || '操作失败')
+                                }
+                            }).catch(err => {
+                                this.$message.error('请求出错了：' + err)
+                            })
+                        } else {
+                            console.log('error submit!!')
+                            return false
+                        }
+                    })
+                },
+                //取消修改资料
+                caneclEditUser() {
+                    this.editEmpDV = false
+                    this.employeeDataTmp = JSON.parse(localStorage.getItem('employeeInfo'))
+                    this.employeeDataTmp.empGender = JSON.parse(localStorage.getItem('employeeInfo')).empGender === 0 ? '女' : '男'
+                },
+                //定义图片的上传规则
+                beforeUpload(file) {
+                    const isJPG = file.type === 'image/jpeg'
+                    const isPNG = file.type === 'image/png'
+                    const isGIF = file.type === 'image/gif'
+                    const isLt2M = file.size / 1024 / 1024 < 2
+                    if (isJPG || isPNG || isGIF) {
+                        if (!isLt2M) {
+                            this.$message.error("上传的图片大小不能超过2MB!")
+                        }
+                        return isLt2M
+                    } else {
+                        this.$message.error("上传的图片格式只能为JPG,PNG和GIF")
+                    }
+
+                },
+                //保存 图片上传到阿里云OSS服务后 返回的url
+                handleAvatarSuccess(res, file) {
+                    this.employeeDataTmp.empAvatar = file.response.map.url
+                },
+                //修改用户的数据
+                async confirmEditEmp(employeeDataTmp) {
+                    this.$refs.employeeDataTmp.validate(async (valid) => {
+                        if (valid) {
+                            const params = {
+                                ...this.employeeDataTmp,
+                                empGender: this.employeeDataTmp.empGender === '女' ? 0 : 1,
+                            }
+                            editEmpApi(params).then(res => {
+                                if (res.code === 1) {
+                                    window.localStorage.setItem('employeeInfo', JSON.stringify(params))
+                                    this.employeeInfo = params
+                                    this.employeeData = params
+                                    this.$message.success('员工信息修改成功！')
+                                    this.editEmpDV = false
+                                } else {
+                                    this.$message.error(res.message || '操作失败')
+                                }
+                            }).catch(err => {
+                                this.$message.error('请求出错了：' + err)
+                            })
+                        } else {
+                            console.log('error submit!!')
+                            return false
+                        }
+                    })
+                },
+                //登录框关闭
+                handleClose(done) {
+                    this.$confirm('确认关闭？')
+                        .then(_ => {
+                            done();
+                        })
+                        .catch(_ => { });
+                },
+            }
+        })
+    </script>
+</body>
+
+</html>

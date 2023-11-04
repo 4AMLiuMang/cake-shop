@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奈川蛋糕店</title>
+    <link rel="shortcut icon" href="favicon.png">
+    <!-- 引入el样式 -->
+    <link rel="stylesheet" href="../../plugins/element-ui/index.css">
+    <link rel="stylesheet" href="../../styles/reset.css" />
+    <link rel="stylesheet" href="../../styles/backend/cakePage.css" />
+</head>
+
+<body>
+    <div class="app" id="app">
+        <div>
+            <!--搜索，操作-->
+            <div class="table-top">
+                <el-tooltip class="item" effect="dark" content="点击放大镜或敲击回车查询" placement="bottom">
+                    <el-input class="head-all-input-input" placeholder="请输入用户账号" clearable v-model="cakeName"
+                        @keyup.enter.native="handleQuery">
+                        <i slot="prefix" class="el-input__icon el-icon-search" style="cursor: pointer;"
+                            @click="handleQuery"></i>
+                    </el-input>
+                </el-tooltip>
+                <el-select class="head-all-input-input" v-model="cakeType" clearable placeholder="请选择蛋糕分类"
+                    @change="handleQuery">
+                    <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
+                    </el-option>
+                </el-select>
+                <el-tooltip class="item" effect="dark" content="点击放大镜或敲击回车查询" placement="bottom">
+                    <el-input class="head-all-input-input" placeholder="请输入用户邮箱" clearable v-model="cakeIntro"
+                        @keyup.enter.native="handleQuery">
+                        <i slot="prefix" class="el-input__icon el-icon-search" style="cursor: pointer;"
+                            @click="handleQuery"></i>
+                    </el-input>
+                </el-tooltip>
+                <el-button class="head-all-input-input head-all-input-botton" type="primary" icon="el-icon-refresh"
+                    plain @click="handleQueryReset">重置</el-button>
+                <el-button class="head-all-input-input head-all-input-botton" type="success"
+                    icon="el-icon-circle-plus-outline" plain @click="handleEditCake('新增')">新增</el-button>
+                <div class="table-botton">
+                    <el-button type="success" plain @click="handleStatus('1')">批量启用</el-button>
+                    <el-button type="warning" plain @click="handleStatus('0')">批量禁用</el-button>
+                    <el-button v-if="isAdmin" type="danger" plain @click="handleDelete('批量', null)">批量删除</el-button>
+                </div>
+            </div>
+            <!--表格-->
+            <el-table :data="cakeData" height="540" border style="width: 100%; margin-left: 0%;"
+                :row-class-name="tableRowClassName" @selection-change="handleSelectionChange">
+                <el-table-column align="center" type="selection" width="50">
+                </el-table-column>
+                <el-table-column type="expand">
+                    <template slot-scope="props">
+                        <el-form label-position="left" inline class="demo-table-expand">
+                            <el-form-item label="蛋糕销量:">
+                                <span>{{ props.row.cakeTotal }}</span>
+                            </el-form-item>
+                            <el-form-item label="上架时间:">
+                                <span>{{ props.row.createTime }}</span>
+                            </el-form-item>
+                            <el-form-item label="蛋糕评分:">
+                                <el-rate class="cakeRate" v-model="props.row.cakeRating" disabled show-score text-color="#ff9900"
+                                    score-template="{value}评分">
+                                </el-rate>
+                            </el-form-item>
+                            <el-form-item label="修改时间:">
+                                <span>{{ props.row.updateTime }}</span>
+                            </el-form-item>
+                            <el-form-item label="蛋糕介绍:">
+                                <span>{{ props.row.cakeIntro }}</span>
+                            </el-form-item>
+                        </el-form>
+                    </template>
+                </el-table-column>
+                <el-table-column align="center" label="蛋糕图片" width="100">
+                    <template slot-scope="{ row }">
+                        <el-avatar style="width: 40px; height: 40px" shape="square" size="large" :src="row.cakeImg"
+                            fit="fill"></el-avatar>
+                    </template>
+                </el-table-column>
+                <el-table-column align="center" prop="cakeName" label="蛋糕名称" width="200">
+                </el-table-column>
+                <el-table-column align="center" prop="cakeType" label="蛋糕类型" width="180">
+                </el-table-column>
+                <el-table-column align="center" prop="cakePrice" label="蛋糕价格/￥" width="180">
+                </el-table-column>
+                <el-table-column align="center" label="状态" width="120">
+                    <template slot-scope="scope">
+                        {{scope.row.cakeStatus === 0 ? '售罄' : '正常'}}
+                    </template>
+                </el-table-column>
+                <el-table-column align="center" label="是否推荐" width="150">
+                    <template slot-scope="scope">
+                        <el-button v-if="scope.row.cakeRec == '1'" type="warning" plain
+                            @click="handleCakeRec(scope.row)">取消推荐
+                        </el-button>
+                        <el-button v-else type="success" plain @click="handleCakeRec(scope.row)">上架推荐
+                        </el-button>
+                    </template>
+                </el-table-column>
+                <el-table-column align="center" label="操作">
+                    <template slot-scope="scope">
+                        <el-button type="primary" plain @click="handleEditCake(scope.row.id)">修改</el-button>
+                        <el-button v-if="scope.row.cakeStatus == '1'" type="warning" plain
+                            @click="handleStatus(scope.row)">售罄
+                        </el-button>
+                        <el-button v-else type="success" plain @click="handleStatus(scope.row)">正常
+                        </el-button>
+                        <el-button v-if="isAdmin" type="danger" plain @click="handleDelete('单删', scope.row.id)">删除
+                        </el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <!--分页条-->
+            <el-pagination class="pageList" :page-sizes="[8, 16, 32, 64, 128]" :page-size="pageSize"
+                layout="total, sizes, prev, pager, next, jumper" :total="counts" :current-page.sync="page"
+                @size-change="handleSizeChange" @current-change="handleCurrentChange"></el-pagination>
+        </div>
+        <!-- 修改资料弹窗 -->
+        <div>
+            <el-dialog title="修改个人资料" :visible.sync="editCakeDV" width="50%" fullscreen :before-close="handleClose">
+                <div>
+                    <el-form :model="cakeDataInfo" status-icon :rules="rules" ref="cakeDataInfo" label-width="100px">
+                        <div class="editUser-box">
+                            <div class="editUser-userAvatar">
+                                <el-upload class="editUser-userAvatar-uploader"
+                                    action="http://localhost:8088/oss/avatarUpload" :show-file-list="false"
+                                    :on-success="handleAvatarSuccess" :before-upload="beforeUpload">
+                                    <el-avatar v-if="cakeDataInfo.cakeImg" style="width: 80px; height: 80px"
+                                        shape="square" size="large" :src="cakeDataInfo.cakeImg" fit="fill">
+                                    </el-avatar>
+                                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                </el-upload>
+                            </div>
+                            <div class="editUser-userUsername">
+                                <el-form-item label="蛋糕名称:" prop="cakeName">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-dish-1"
+                                        placeholder="请输入蛋糕名称:" v-model="cakeDataInfo.cakeName" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userPhone">
+                                <el-form-item label="蛋糕类型:" prop="cakeType">
+                                    <el-select class="edit-user-input edit-user-input1" v-model="cakeDataInfo.cakeType"
+                                        clearable placeholder="请选择蛋糕分类">
+                                        <el-option v-for="item in options" :key="item.value" :label="item.label"
+                                            :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userNickname">
+                                <el-form-item label="蛋糕介绍:" prop="cakeIntro">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-chat-dot-square"
+                                        placeholder="请输入蛋糕介绍" v-model="cakeDataInfo.cakeIntro" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userEmail">
+                                <el-form-item label="蛋糕价格:" prop="cakePrice">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-coin" placeholder="请输入蛋糕单价"
+                                        v-model="cakeDataInfo.cakePrice" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                        </div>
+                    </el-form>
+                    <el-button class="editUser-button1" @click="caneclEditCake">取消修改</el-button>
+                    <el-button class="editUser-button2" type="primary" @click="confirmEditCake(cakeDataInfo)">确定修改
+                    </el-button>
+                </div>
+            </el-dialog>
+        </div>
+        <!-- 新增蛋糕弹窗 -->
+        <div>
+            <el-dialog title="新增蛋糕" :visible.sync="addCakeDV" width="50%" fullscreen :before-close="handleClose">
+                <div>
+                    <el-form :model="cakeDataInfo" status-icon :rules="rules" ref="cakeDataInfo" label-width="100px">
+                        <div class="editUser-box">
+                            <div class="editUser-userAvatar">
+                                <el-upload class="editUser-userAvatar-uploader"
+                                    action="http://localhost:8088/oss/avatarUpload" :show-file-list="false"
+                                    :on-success="handleAvatarSuccess" :before-upload="beforeUpload">
+                                    <el-avatar v-if="cakeDataInfo.cakeImg" style="width: 80px; height: 80px"
+                                        shape="square" size="large" :src="cakeDataInfo.cakeImg" fit="fill">
+                                    </el-avatar>
+                                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                </el-upload>
+                            </div>
+                            <div class="editUser-userUsername">
+                                <el-form-item label="蛋糕名称:" prop="cakeName">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-dish-1"
+                                        placeholder="请输入蛋糕名称:" v-model="cakeDataInfo.cakeName" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userPhone">
+                                <el-form-item label="蛋糕类型:" prop="cakeType">
+                                    <el-select class="edit-user-input edit-user-input1" v-model="cakeDataInfo.cakeType"
+                                        clearable placeholder="请选择蛋糕分类">
+                                        <el-option v-for="item in options" :key="item.value" :label="item.label"
+                                            :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userNickname">
+                                <el-form-item label="蛋糕介绍:" prop="cakeIntro">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-chat-dot-square"
+                                        placeholder="请输入蛋糕介绍" v-model="cakeDataInfo.cakeIntro" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userEmail">
+                                <el-form-item label="蛋糕价格:" prop="cakePrice">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-coin" placeholder="请输入蛋糕单价"
+                                        v-model="cakeDataInfo.cakePrice" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                        </div>
+                    </el-form>
+                    <el-button class="editUser-button1" @click="caneclAddCake">取消新增</el-button>
+                    <el-button class="editUser-button2" type="primary" @click="confirmAddCake(cakeDataInfo)">确定新增
+                    </el-button>
+                </div>
+            </el-dialog>
+        </div>
+    </div>
+    <!-- 引入vue -->
+    <script src="../../plugins/vue/vue.min.js"></script>
+    <!-- 引入el组件库 -->
+    <script src="../../plugins/element-ui/index.js"></script>
+    <!-- 引入axios -->
+    <script src="../../plugins/axios/axios.min.js"></script>
+    <!-- 引入输入校验 -->
+    <script src="../../js/validate.js"></script>
+    <!-- 引入拦截器 -->
+    <script src="../../js/request.js"></script>
+    <!-- 引入接口 -->
+    <script src="../../api/backend/cake.js"></script>
+    <script>
+        new Vue({
+            el: "#app",
+            data() {
+                return {
+                    isAdmin: true,
+                    employeeInfo: {},
+                    employeeData: {
+                        "id": "",
+                        "empUsername": "",
+                        "empPassword": "",
+                        "empNickname": "",
+                        "empAvatar": "",
+                        "empGender": "",
+                        "empPhone": "",
+                        "empIdentity": "",
+                        "empEmail": "",
+                        "empAddress": "",
+                        "empStatus": "",
+                        "createTime": "",
+                        "updateTime": ""
+                    },
+                    page: 1,
+                    pageSize: 8,
+                    counts: "",
+                    cakeData: [],
+                    cakeName: "",
+                    userNickname: "",
+                    cakeIntro: "",
+                    options: [{
+                        value: '戚风蛋糕',
+                        label: '戚风蛋糕'
+                    }, {
+                        value: '慕斯蛋糕',
+                        label: '慕斯蛋糕'
+                    }, {
+                        value: '海绵蛋糕',
+                        label: '海绵蛋糕'
+                    }, {
+                        value: '天使蛋糕',
+                        label: '天使蛋糕'
+                    }, {
+                        value: '芝士蛋糕',
+                        label: '芝士蛋糕'
+                    }, {
+                        value: '巧克力蛋糕',
+                        label: '巧克力蛋糕'
+                    }, {
+                        value: '布丁蛋糕',
+                        label: '布丁蛋糕'
+                    }, {
+                        value: '乳酪蛋糕',
+                        label: '乳酪蛋糕'
+                    }, {
+                        value: '水果蛋糕',
+                        label: '水果蛋糕'
+                    }, {
+                        value: '重油蛋糕',
+                        label: '重油蛋糕'
+                    }, {
+                        value: '面糊类蛋糕',
+                        label: '面糊类蛋糕'
+                    }, {
+                        value: '乳沫类蛋糕',
+                        label: '乳沫类蛋糕'
+                    }],
+                    cakeType: '',
+                    editCakeDV: false,
+                    addCakeDV: false,
+                    cakeDataInfo: {},
+                }
+            },
+            computed: {
+                rules() {
+                    return {
+                        //校验蛋糕名称
+                        cakeName: [{ required: false, 'validator': checkCakeName, trigger: 'blur' }],
+                        //校验蛋糕分类//不是input，无法校验
+                        // cakeType: [{ required: false, 'validator': checkCakeType, trigger: 'blur' }],
+                        //校验蛋糕介绍
+                        cakeIntro: [{ required: false, 'validator': checkCakeIntro, trigger: 'blur' }],
+                        //校验蛋糕价格
+                        cakePrice: [{ required: false, 'validator': checkCakePrice, trigger: 'blur' }],
+                    }
+                }
+            },
+            created() {
+                this.employeeInfo = JSON.parse(window.localStorage.getItem('employeeInfo'))
+                if (this.employeeInfo != null) {
+                    this.employeeData = this.employeeInfo
+                }
+                this.init()
+                this.handleGetCakeData()
+            },
+            mounted() {
+            },
+            methods: {
+                //查询所有蛋糕数据
+                async handleGetCakeData() {
+                    const params = {
+                        page: this.page,
+                        pageSize: this.pageSize,
+                        cakeName: this.cakeName ? this.cakeName : undefined,
+                        cakeType: this.cakeType ? this.cakeType : undefined,
+                        cakeIntro: this.cakeIntro ? this.cakeIntro : undefined,
+                    }
+                    await getCakeList(params).then(res => {
+                        if (res.code === 1) {
+                            this.cakeData = res.data.records || []
+                            this.counts = res.data.total
+                        }
+                    }).catch(err => {
+                        this.$message.error('请求出错了：' + err)
+                    })
+                },
+                // 验证是否为管理员登录登录
+                init() {
+                    if (this.employeeData.empUsername == "administrator") {
+                        this.isAdmin = true
+                    } else {
+                        this.isAdmin = false
+                    }
+                },
+                //模糊搜索查询
+                handleQuery() {
+                    this.page = 1;
+                    this.handleGetCakeData();
+                },
+                //重置分类查询
+                handleQueryReset() {
+                    this.cakeName = "";
+                    this.cakeType = "";
+                    this.cakeIntro = "";
+                    this.page = 1;
+                    this.pageSize = 8;
+                    this.handleGetCakeData();
+                },
+                //分页查询，页数
+                handleCurrentChange(val) {
+                    this.page = val
+                    this.handleGetCakeData()
+                },
+                //分页查询，条数
+                handleSizeChange(val) {
+                    this.pageSize = val
+                    this.handleGetCakeData()
+                },
+                //将勾选的数据构成数组
+                handleSelectionChange(val) {
+                    let checkArr = []
+                    val.forEach((n) => {
+                        checkArr.push(n.id)
+                    })
+                    this.checkList = checkArr
+                },
+                //修改表格颜色
+                tableRowClassName({ row, rowIndex }) {
+                    if (row.cakeStatus === 0) {
+                        return 'danger-row';
+                    }
+                    if (row.cakeRec === 1) {
+                        return 'primary-row';
+                    }
+                    return 'success-row';
+                },
+                // 删除
+                handleDelete(type, id) {
+                    if (type === '批量' && id === null) {
+                        if (this.checkList.length === 0) {
+                            return this.$message.error('请选择删除对象')
+                        }
+                    }
+                    this.$confirm('确认删除该蛋糕, 是否继续?', '确定删除', {
+                        'confirmButtonText': '确定',
+                        'cancelButtonText': '取消',
+                        'type': 'warning'
+                    }).then(() => {
+                        deleteCake(type === '批量' ? this.checkList.join(',') : id).then(res => {
+                            if (res.code === 1) {
+                                this.$message.success('删除成功！')
+                                this.handleQuery()
+                            } else {
+                                this.$message.error(res.message || '操作失败')
+                            }
+                        }).catch(err => {
+                            this.$message.error('请求出错了：' + err)
+                        })
+                    })
+                },
+                //状态更改
+                handleStatus(row) {
+                    let params = {}
+                    if (typeof row === 'string') {
+                        if (this.checkList.length === 0) {
+                            this.$message.error('批量操作，请先勾选蛋糕后操作！')
+                            return false
+                        }
+                        params.id = this.checkList.join(',')
+                        params.cakeStatus = row
+                    } else {
+                        params.id = row.id
+                        params.cakeStatus = row.cakeStatus ? 0 : 1
+                    }
+                    this.cakeState = params
+                    this.$confirm('确认更改该蛋糕状态?', '提示', {
+                        'confirmButtonText': '确定',
+                        'cancelButtonText': '取消',
+                        'type': 'warning'
+                    }).then(() => {
+                        // 启用禁用---批量启用禁用接口
+                        enableOrDisableCake(this.cakeState).then(res => {
+                            if (res.code === 1) {
+                                this.$message.success('蛋糕状态已经更改成功！')
+                                this.handleQuery()
+                            } else {
+                                this.$message.error(res.message || '操作失败')
+                            }
+                        }).catch(err => {
+                            this.$message.error('请求出错了：' + err)
+                        })
+                    })
+                },
+                //推荐更改
+                handleCakeRec(row) {
+                    let params = {}
+                    if (typeof row === 'string') {
+                        if (this.checkList.length === 0) {
+                            this.$message.error('批量操作，请先勾选蛋糕后操作！')
+                            return false
+                        }
+                        params.id = this.checkList.join(',')
+                        params.cakeRec = row
+                    } else {
+                        params.id = row.id
+                        params.cakeRec = row.cakeRec ? 0 : 1
+                    }
+                    this.cakeStates = params
+                    this.$confirm('确认更改该蛋糕推荐状态?', '提示', {
+                        'confirmButtonText': '确定',
+                        'cancelButtonText': '取消',
+                        'type': 'warning'
+                    }).then(() => {
+                        enableOrDisableCakeRec(this.cakeStates).then(res => {
+                            if (res.code === 1) {
+                                this.$message.success(res.data)
+                                this.handleQuery()
+                            } else {
+                                this.$message.error(res.message || '操作失败')
+                            }
+                        }).catch(err => {
+                            this.$message.error('请求出错了：' + err)
+                        })
+                    })
+                },
+                //异步请求蛋糕的数据
+                async handleQueryCake(id) {
+                    queryCakeById(id).then(res => {
+                        if (res.code === 1) {
+                            this.cakeDataInfo = res.data
+                        } else {
+                            this.$message.error(res.message || '操作失败')
+                        }
+                    })
+                },
+                //请求蛋糕数据并打开修改弹窗
+                handleEditCake(row) {
+                    if (row === '新增') {
+                        this.cakeDataInfo = {}
+                        this.addCakeDV = true
+                    } else {
+                        this.handleQueryCake(row)
+                        this.editCakeDV = true
+                    }
+                },
+                //取消修改蛋糕
+                caneclEditCake() {
+                    this.editCakeDV = false
+                    this.cakeDataInfo = {}
+                },
+                //取消新增蛋糕
+                caneclAddCake() {
+                    this.addCakeDV = false
+                    this.cakeDataInfo = {}
+                },
+                //定义图片的上传规则
+                beforeUpload(file) {
+                    const isJPG = file.type === 'image/jpeg'
+                    const isPNG = file.type === 'image/png'
+                    const isGIF = file.type === 'image/gif'
+                    const isLt2M = file.size / 1024 / 1024 < 2
+                    if (isJPG || isPNG || isGIF) {
+                        if (!isLt2M) {
+                            this.$message.error("上传的图片大小不能超过2MB!")
+                        }
+                        return isLt2M
+                    } else {
+                        this.$message.error("上传的图片格式只能为JPG,PNG和GIF")
+                    }
+                },
+                //保存 图片上传到阿里云OSS服务后 返回的url
+                handleAvatarSuccess(res, file) {
+                    this.cakeDataInfo.cakeImg = file.response.map.url
+                },
+                //修改蛋糕的数据
+                async confirmEditCake(cakeDataInfo) {
+                    this.$refs.cakeDataInfo.validate(async (valid) => {
+                        if (valid) {
+                            const params = {
+                                ...this.cakeDataInfo,
+                            }
+                            delete params.cakeTotal
+                            delete params.cakeRating
+                            editCakeApi(params).then(res => {
+                                if (res.code === 1) {
+                                    this.handleQuery()
+                                    this.$message.success('蛋糕信息修改成功！')
+                                    this.editCakeDV = false
+                                } else {
+                                    this.$message.error(res.message || '操作失败')
+                                }
+                            }).catch(err => {
+                                this.$message.error('请求出错了：' + err)
+                            })
+                        } else {
+                            console.log('error submit!!')
+                            return false
+                        }
+                    })
+                },
+                //新增蛋糕
+                async confirmAddCake(cakeDataInfo) {
+                    this.$refs.cakeDataInfo.validate(async (valid) => {
+                        if (valid) {
+                            const params = {
+                                ...this.cakeDataInfo,
+                            }
+                            addCakeApi(params).then(res => {
+                                if (res.code === 1) {
+                                    this.handleQuery()
+                                    this.$message.success('添加蛋糕成功！')
+                                    this.addCakeDV = false
+                                } else {
+                                    this.$message.error(res.message || '操作失败')
+                                }
+                            }).catch(err => {
+                                this.$message.error('请求出错了：' + err)
+                            })
+                        } else {
+                            console.log('error submit!!')
+                            return false
+                        }
+                    })
+                },
+                //关闭弹框
+                handleClose(done) {
+                    this.$confirm('确认关闭？')
+                        .then(_ => {
+                            done();
+                        })
+                        .catch(_ => { });
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

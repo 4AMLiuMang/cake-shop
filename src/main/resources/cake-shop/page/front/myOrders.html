@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奈川蛋糕店</title>
+    <link rel="shortcut icon" href="../../favicon.png">
+    <!-- 引入el样式 -->
+    <link rel="stylesheet" href="../../plugins/element-ui/index.css">
+    <link rel="stylesheet" href="../../styles/reset.css" />
+    <link rel="stylesheet" href="../../styles/front/myOrders.css" />
+</head>
+
+<body>
+    <div class="app" id="app">
+        <!--主体界面-->
+        <el-table :data="ordersData" height="652" border :row-class-name="tableRowClassName"
+            style="width: 80%; margin-left: 10%;">
+            <el-table-column align="center" prop="cakeImg" label="蛋糕图片" width="180">
+                <template slot-scope="{ row }">
+                    <el-avatar style="width: 40px; height: 40px" shape="square" size="large" :src="row.cakeImg"
+                        fit="fill"></el-avatar>
+                </template>
+            </el-table-column>
+            <el-table-column align="center" prop="cakeName" label="蛋糕名字" width="180">
+            </el-table-column>
+            <el-table-column sortable align="center" prop="cakePrice" label="订单金额">
+            </el-table-column>
+            <el-table-column sortable align="center" prop="createTime" label="下单时间">
+            </el-table-column>
+            <el-table-column sortable align="center" prop="ocTime" label="完成时间">
+                <template slot-scope="scope">
+                    {{ scope.row.ocStatus === 0 ? '订单进行中' : scope.row.ocStatus === 1 ? '用户取消订单' : scope.row.ocStatus ===
+                    2 ? '商户取消订单' : scope.row.ocTime}}
+                </template>
+            </el-table-column>
+            <el-table-column align="center" label="操作">
+                <template slot-scope="scope">
+                    <el-button type="danger" plain @click="handleShowOrders(scope.row)">订单详情</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+        <!--订单详情弹窗-->
+        <div>
+            <el-dialog title="查看订单详情" :visible.sync="showOrderDV" width="50%" fullscreen :before-close="handleClose">
+                <div class="orderInfo">
+                    <div class="orderInfo-box">
+                        <div class="orderInfo-img">
+                            <el-image style="width: 150px; height: 150px" :src="orderInfo.cakeImg" fit="fill">
+                            </el-image>
+                        </div>
+                        <div class="orderInfo-cakeName">蛋糕名字:{{orderInfo.cakeName}}</div>
+                        <div class="orderInfo-cakeType">蛋糕类型:{{cardDVInfo.cakeType}}</div>
+                        <div class="orderInfo-cakePrice">订单金额:{{orderInfo.cakePrice}}￥</div>
+                        <div class="orderInfo-createTime">下单时间:{{orderInfo.createTime}}</div>
+                    </div>
+                    <div class="steps-box">
+                        <el-steps :space="200" :active="orderActive" finish-status="success">
+                            <el-step title="订单创建" description="已经成功创建订单，商家正在为您定做蛋糕，请稍后"></el-step>
+                            <el-step v-if="sm_status" title="商家出餐" description="您的蛋糕已定做完成，正在等待骑手为您配送"></el-step>
+                            <el-step v-else title="商家出餐" description=""></el-step>
+                            <el-step v-if="de_status" title="骑手配送" description="请稍后，您订购的蛋糕正在向您飞奔而去~"></el-step>
+                            <el-step v-else title="骑手配送" description=""></el-step>
+                            <el-step v-if="oc_status" title="订单已完成" description=""></el-step>
+                            <el-step status="error" v-if="oc_statusUser" title="用户取消订单"
+                                description="你好，祝您生日快乐！遗憾的是，由于您取消了订单，导致本店无法为你奉上这份特殊的礼物。不过，愿您的生日还是充满欢乐和美好的回忆！"></el-step>
+                            <el-step status="error" v-if="oc_statusEmployee" title="商家取消订单"
+                                description="你好，祝您生日快乐！由于本店疏忽，制作此蛋糕的原材料供应不足，导致您所需的生日蛋糕不能及时奉上，在此为你道歉，不过，愿您的生日还是充满欢乐和美好的回忆！">
+                            </el-step>
+                            <el-step v-if="oc_statusSuccess" title="订单已完成"
+                                description="亲爱的客户，祝你生日快乐！愿你获得健康、快乐和幸福！期待您下次光临我们的蛋糕店！祝您一切顺意！"></el-step>
+                        </el-steps>
+                    </div>
+                    <div class="button-box">
+                        <el-button class="order-button" type="warning" plain @click="showOrderDV = false">返回</el-button>
+                        <el-button class="order-button" type="primary" plain @click="cardDV = true">再次购买</el-button>
+                        <el-button class="order-button" v-if="cancel" type="danger" plain @click="handleOcStatus(1)">
+                            取消订单</el-button>
+                        <el-button class="order-button" v-if="receive" type="success" plain @click="handleOcStatus(3)">
+                            确认收货</el-button>
+                    </div>
+                </div>
+            </el-dialog>
+        </div>
+        <!--蛋糕详情弹窗-->
+        <div>
+            <el-dialog title="详细信息" :visible.sync="cardDV" width="50%" :before-close="handleClose">
+                <div class="cardDV">
+                    <div class="cardDV-cakeImg">
+                        <el-image v-if="cardDVInfo.cakeStatus" style="width: 320px; height: 320px"
+                            :src="cardDVInfo.cakeImg" fit="fill"></el-image>
+                        </el-image>
+                        <el-image v-else style="width: 320px; height: 320px" src="../../images/nothing.png" fit="fill">
+                        </el-image>
+                    </div>
+                    <div class="cardDV-cakeName">{{cardDVInfo.cakeName}}</div>
+                    <div class="cardDV-cakeType">蛋糕分类:<br />{{cardDVInfo.cakeType}}</div>
+                    <div class="cardDV-updateTime">上架时间:<br />{{cardDVInfo.updateTime}}</div>
+                    <div class="cardDV-cakeIntro">蛋糕介绍:<br />&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp{{cardDVInfo.cakeIntro}}
+                    </div>
+                    <div class="cardDV-cakePrice">售价:{{cardDVInfo.cakePrice}}￥</div>
+                    <div class="cardDV-cakeTotal">销量:{{cardDVInfo.cakeTotal}}</div>
+                    <div class="cardDV-cakeRating">
+                        <el-rate v-model="cardDVInfo.cakeRating" disabled show-score text-color="#ff9900"
+                            score-template="{value}评分">
+                        </el-rate>
+                    </div>
+                    <div class="cardDV-showComment">
+                        <el-button type="info" plain size="small" @click="handleShowComment">查看评论</el-button>
+                    </div>
+                </div>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="cardDV = false">返 回</el-button>
+                    <el-button type="primary" @click="cardDV = false;handlePurchase(cardDVInfo)">购 买</el-button>
+                </span>
+            </el-dialog>
+        </div>
+        <!--购买弹窗-->
+        <div>
+            <el-dialog title="请确认您的购买信息" :visible.sync="buyDV" width="45%" :before-close="handleClose">
+                <div class="buyDV">
+                    <div class="buyDV-cakeImg">
+                        <el-image v-if="buyDVInfo.cakeStatus" style="width: 150px; height: 150px"
+                            :src="buyDVInfo.cakeImg" fit="fill"></el-image>
+                        </el-image>
+                        <el-image v-else style="width: 150px; height: 150px" src="../../images/nothing.png" fit="fill">
+                        </el-image>
+                    </div>
+                    <div class="buyDV-cakeName">{{buyDVInfo.cakeName}}</div>
+                    <div class="buyDV-cakePrice">售价:{{buyDVInfo.cakePrice}}￥</div>
+                    <div class="buyDV-userNickname">收件人信息:&nbsp;&nbsp;&nbsp;&nbsp;姓名:{{userData.userNickname}}</div>
+                    <div class="buyDV-userPhone">电话:{{userData.userPhone}}</div>
+                    <div class="buyDV-userAddress">地址:{{userData.userAddress}}</div>
+                    <div>
+                        <div class="buyDV-CollectionCode">此处付款</div>
+                        <div class="buyDV-CollectionCode-img">
+                            <el-popover placement="top" width="200" trigger="hover">
+                                <div class="buyDV-QRC">
+                                    <div class="buyDV-QRC-img1">
+                                        <el-image style="width: 100px; height: 100px" src="../../images/QRCode1.png"
+                                            fit="fill">
+                                        </el-image>
+                                    </div>
+                                    <div class="buyDV-QRC-img2">
+                                        <el-image style="width: 100px; height: 100px" src="../../images/QRCode2.png"
+                                            fit="fill">
+                                        </el-image>
+                                    </div>
+                                </div>
+                                <el-image slot="reference" style="width: 50px; height: 50px"
+                                    src="../../images/CollectionCode.png" fit="fill">
+                                </el-image>
+                            </el-popover>
+                        </div>
+                    </div>
+                </div>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="buyDV = false">返 回</el-button>
+                    <el-button type="primary" @click="handleBuyCake">我已付款</el-button>
+                </span>
+            </el-dialog>
+        </div>
+        <!--评论弹窗-->
+        <div>
+            <el-dialog title="全部评论" :visible.sync="CommentDV" :before-close="handleClose" fullscreen="true">
+                <div class="CommentDV">
+                    <div class="CommentDV-info" v-for="(cmt, index) in CommentDVInfo" :key="cmt.id">
+                        <div class="CommentDV-info-userAvatar">
+                            <el-avatar style="width: 50px; height: 50px" shape="square" size="large"
+                                :src="cmt.userAvatar" fit="fill"></el-avatar>
+                        </div>
+                        <div class="CommentDV-info-userNickname">{{cmt.userNickname}}</div>
+                        <div class="CommentDV-info-createTime">{{cmt.createTime}}</div>
+                        <div class="CommentDV-info-cmtContent">{{cmt.cmtContent}}</div>
+                    </div>
+                    <div class="CommentDV-button1">
+                        <el-button class="CommentDV-button" type="danger" plain
+                            @click="CommentDV = false; cardDV = true">返 回</el-button>
+                    </div>
+                    <div class="CommentDV-button2">
+                        <el-button class="CommentDV-button" type="primary" plain
+                            @click="CommentDV = false;handlePurchase(cardDVInfo)">购 买</el-button>
+                    </div>
+                </div>
+            </el-dialog>
+        </div>
+        <!--确认收货后评价订单-->
+        <div>
+            <el-dialog title="订单评价" :visible.sync="addCommentDv" width="40%" :before-close="handleClose">
+                <div class="addComment">
+                    <div class="addComment-text1">评论:</div>
+                    <el-input class="addComment-input" type="textarea" maxlength="300" :autosize="{ minRows: 4, maxRows: 4}" placeholder="请输入您对此订单的评价" v-model="addCmtContent">
+                    </el-input>
+                    <div class="addComment-text2">评分:</div>
+                    <el-rate class="addComment-rate" v-model="addRate" show-text>
+                    </el-rate>
+                </div>
+                <span slot="footer" class="dialog-footer">
+                    <el-button class="addComment-button" @click="handleBackOrders">取 消</el-button>
+                    <el-button class="addComment-button" type="primary" @click="handleAddComment">确 定</el-button>
+                </span>
+            </el-dialog>
+        </div>
+    </div>
+    <!-- 引入vue -->
+    <script src="../../plugins/vue/vue.min.js"></script>
+    <!-- 引入el组件库 -->
+    <script src="../../plugins/element-ui/index.js"></script>
+    <!-- 引入axios -->
+    <script src="../../plugins/axios/axios.min.js"></script>
+    <!-- 引入输入校验 -->
+    <!-- <script src="../../js/validate.js"></script> -->
+    <!-- 引入拦截器 -->
+    <script src="../../js/request.js"></script>
+    <!-- 引入接口 -->
+    <script src="../../api/index.js"></script>
+    <script>
+        new Vue({
+            el: "#app",
+            data() {
+                return {
+                    userInfo: {},
+                    userData: {
+                        "id": "",
+                        "userUsername": "",
+                        "userPassword": "",
+                        "userNickname": "",
+                        "userAvatar": "",
+                        "userGender": "",
+                        "userPhone": "",
+                        "userEmail": "",
+                        "userAddress": "",
+                        "userStatus": "",
+                        "createTime": "",
+                        "updateTime": ""
+                    },
+                    page: 1,
+                    pageSize: 500,
+                    ordersData: [],
+                    showOrderDV: false,
+                    orderInfo: {},
+                    orderActive: 1,
+                    sm_status: false,
+                    de_status: false,
+                    oc_status: true,
+                    oc_statusUser: false,
+                    oc_statusEmployee: false,
+                    oc_statusSuccess: false,
+                    cancel: true,
+                    receive: false,
+                    cardDV: false,
+                    cardDVInfo: {},
+                    buyDV: false,
+                    buyDVInfo: {},
+                    CommentDV: false,
+                    CommentDVInfo: [],
+                    addCommentDv: false,
+                    addCmtContent: "",
+                    tmpCmtContent: "",
+                    addRate: "",
+                }
+            },
+            computed: {
+            },
+            created() {
+                this.userInfo = JSON.parse(localStorage.getItem('userInfo'))
+                if (this.userInfo != null) {
+                    this.userData = this.userInfo
+                }
+                this.init()
+            },
+            mounted() {
+            },
+            methods: {
+                //异步查询订单信息
+                async init() {
+                    const params = {
+                        id: this.userData.id,
+                        page: this.page,
+                        pageSize: this.pageSize,
+                    }
+                    await getOrdersByUidApi(params).then(res => {
+                        if (res.code === 1) {
+                            this.ordersData = res.data.records || []
+
+                            if (res.data.total === 0) {
+                                this.$message.error('暂无订单信息,3秒后返回主页')
+                                setTimeout(() => {
+                                    window.parent.menuHandle({
+                                        id: '1',
+                                        url: 'page/front/homePage.html',
+                                    }, false)
+                                }, 4000)
+                            }
+                        }
+                    }).catch(err => {
+                        this.$message.error('请求出错了：' + err)
+                    })
+                },
+                //修改表格颜色
+                tableRowClassName({ row, rowIndex }) {
+                    // if (row.smStatus === 1 && row.ocStatus === 0) {
+                    //     return 'primary-row';
+                    // }
+                    if (row.deStatus === 1 && row.ocStatus === 0) {
+                        return 'primary-row';
+                    }
+                    if (row.ocStatus == 1) {
+                        return 'danger-row';
+                    }
+                    if (row.ocStatus == 2) {
+                        return 'danger-row';
+                    }
+                    if (row.ocStatus == 3) {
+                        return 'success-row';
+                    }
+                    return 'warning-row';
+                },
+                //关闭弹窗
+                handleClose(done) {
+                    this.$confirm('确认关闭？')
+                        .then(_ => {
+                            done();
+                        })
+                        .catch(_ => { });
+                },
+                //点击查看详情打开详情弹窗并传入对应数据
+                handleShowOrders(orders) {
+                    this.handleShowCake(orders.cakeId)
+                    this.orderInfo = orders
+                    this.showOrderDV = true
+                    this.orderActive = 1
+                    this.sm_status = false
+                    this.de_status = false
+                    this.oc_status = true
+                    this.oc_statusUser = false
+                    this.oc_statusEmployee = false
+                    this.oc_statusSuccess = false
+                    this.cancel = true
+                    this.receive = false
+                    if (this.orderInfo.smStatus === 1) {
+                        this.sm_status = true
+                        this.cancel = true
+                        this.receive = false
+                        this.orderActive = 2
+                    }
+                    if (this.orderInfo.deStatus === 1) {
+                        this.de_status = true
+                        this.cancel = false
+                        this.receive = true
+                        this.orderActive = 3
+                    }
+                    if (this.orderInfo.ocStatus === 1) {
+                        this.oc_status = false
+                        this.oc_statusUser = true
+                        this.oc_statusEmployee = false
+                        this.oc_statusSuccess = false
+                        this.cancel = false
+                        this.receive = false
+                        this.orderActive = 4
+                    }
+                    if (this.orderInfo.ocStatus === 2) {
+                        this.oc_status = false
+                        this.oc_statusUser = false
+                        this.oc_statusEmployee = true
+                        this.oc_statusSuccess = false
+                        this.cancel = false
+                        this.receive = false
+                        this.orderActive = 4
+                    }
+                    if (this.orderInfo.ocStatus === 3) {
+                        this.oc_status = false
+                        this.oc_statusUser = false
+                        this.oc_statusEmployee = false
+                        this.oc_statusSuccess = true
+                        this.cancel = false
+                        this.receive = false
+                        this.orderActive = 4
+                    }
+                },
+                //根据id查询商品信息
+                async handleShowCake(id) {
+                    queryCakeById(id).then(res => {
+                        if (res.code === 1) {
+                            this.cardDVInfo = res.data
+                        } else {
+                            this.$message.error(res.message || '操作失败')
+                        }
+                    })
+                },
+                //点击购买传入数据，用于在弹窗中展示
+                handlePurchase(cakes) {
+                    if (this.userInfo == null) {
+                        this.cardDV = false
+                        this.$message.error("您还未登录,请先登录")
+                    } else if (cakes.cakeStatus == 0) {
+                        this.cardDV = false
+                        this.$message.error("抱歉该商品已经售空,请重新选购")
+                    } else {
+                        this.buyDVInfo = cakes
+                        this.cardDV = false
+                        this.buyDV = true
+                    }
+                },
+                //点击购买
+                handleBuyCake() {
+                    const params = {
+                        ...this.buyDVInfo,
+                        cakeId: this.buyDVInfo.id,
+                        ...this.userData,
+                        userId: this.userData.id,
+                    }
+                    delete params.id
+                    delete params.cakeIntro
+                    delete params.cakeRating
+                    delete params.cakeRec
+                    delete params.cakeStatus
+                    delete params.cakeTotal
+                    delete params.cakeType
+                    delete params.userUsername
+                    delete params.userGender
+                    delete params.userEmail
+                    delete params.userPassword
+                    delete params.createTime
+                    delete params.updateTime
+                    delete params.userStatus
+                    buyCakeApi(params).then(res => {
+                        if (res.code === 1) {
+                            this.$message.success(res.data)
+                            window.parent.menuHandle({
+                                id: '3',
+                                url: 'page/front/myOrders.html',
+                            }, false)
+                            this.showOrderDV = false
+                            this.cardDV = false
+                            this.buyDV = false
+                            this.CommentDV = false
+                        } else {
+                            this.$message.error(res.message || '操作失败')
+                        }
+                    }).catch(err => {
+                        this.$message.error('请求出错了：' + err)
+                    })
+                },
+                //异步查询评论
+                async handleShowComment() {
+                    const params = {
+                        id: this.cardDVInfo.id,
+                        page: this.page,
+                        pageSize: this.pageSize,
+                    }
+                    await getCommentByCidApi(params).then(res => {
+                        if (res.code === 1) {
+                            this.CommentDVInfo = res.data.records || []
+                            if (res.data.total === 0) {
+                                this.$message.error('该蛋糕暂无评论')
+                            } else {
+                                this.cardDV = false
+                                this.CommentDV = true
+                            }
+                        }
+                    }).catch(err => {
+                        this.$message.error('请求出错了：' + err)
+                    })
+                },
+                //根据id修改收货状态 1用户取消 2商家取消 3订单完成
+                handleOcStatus(ocStatus) {
+                    const params = {
+                        id: this.orderInfo.id,
+                        ocStatus: ocStatus,
+                    }
+                    this.$confirm('该操作不可撤销，请确认！！', '提示', {
+                        'confirmButtonText': '确定',
+                        'cancelButtonText': '取消',
+                        'type': 'warning'
+                    }).then(() => {
+                        modifyOcStatus(params).then(res => {
+                            if (res.code === 1) {
+                                if (params.ocStatus === 3) {
+                                    this.$message.success('确认收货成功')
+                                    this.addCommentDv = true
+                                    this.cardDV = false
+                                    this.buyDV = false
+                                    this.CommentDV = false
+                                } else {
+                                    this.$message.success('订单取消成功')
+                                    this.init()
+                                    this.showOrderDV = false
+                                    this.cardDV = false
+                                    this.buyDV = false
+                                    this.CommentDV = false
+                                }
+                            } else {
+                                this.$message.error(res.message || '操作失败')
+                            }
+                        }).catch(err => {
+                            this.$message.error('请求出错了：' + err)
+                        })
+                    })
+                },
+                //发表评论和评分
+                handleAddComment() {
+                    const params1 = {
+                        cakeId: this.cardDVInfo.id,
+                        cakeName: this.cardDVInfo.cakeName,
+                        cakeImg: this.cardDVInfo.cakeImg,
+                        userId: this.userData.id,
+                        userNickname: this.userData.userNickname,
+                        userAvatar: this.userData.userAvatar,
+                        cmtContent: this.addCmtContent,
+                    }
+                    const params2 = {
+                        id: this.orderInfo.id,
+                        cakeRating: this.addRate,
+                    }
+                    if (params1.cmtContent != this.tmpCmtContent) {
+                        //评论接口
+                        addCommentApi(params1).then(res => {
+                            if (res.code === 1) {
+                                this.$message.success("评论添加成功")
+                            } else {
+                                this.$message.error(res.message || '操作失败')
+                            }
+                        }).catch(err => {
+                            this.$message.error('请求出错了：' + err)
+                        })
+                    }
+                    if (params2.cakeRating != 0) {
+                        ///评分接口
+                        modifyCakeRating(params2).then(res => {
+                            if (res.code === 1) {
+                                this.$message.success('评分添加成功')
+                                this.init()
+                                this.addCommentDv = false
+                                this.showOrderDV = false
+                                this.cardDV = false
+                                this.buyDV = false
+                                this.CommentDV = false
+                                this.addCmtContent = ""
+                                this.addRate = ""
+                            } else {
+                                this.$message.error(res.message || '操作失败')
+                            }
+                        }).catch(err => {
+                            this.$message.error('请求出错了：' + err)
+                        })
+                    }
+                    this.init()
+                    this.addCommentDv = false
+                    this.showOrderDV = false
+                    this.cardDV = false
+                    this.buyDV = false
+                    this.CommentDV = false
+                },
+                //关闭评价弹窗
+                handleBackOrders(){
+                    this.init()
+                    this.addCommentDv = false
+                    this.showOrderDV = false
+                    this.cardDV = false
+                    this.buyDV = false
+                    this.CommentDV = false
+                },
+            }
+        })
+    </script>
+
+</body>
+<style>
+    body {
+        background-color: #bcf8f9;
+        background-image: linear-gradient(90deg, #bcf8f9 0%, #fedcff 50%, #f9c9c9 100%);
+    }
+
+    .el-table .warning-row {
+        background: rgb(255, 255, 114);
+    }
+
+    .el-table .danger-row {
+        background: #ff6767;
+    }
+
+    .el-table .success-row {
+        background: #a2ff70;
+    }
+
+    .el-table .primary-row {
+        background: #70a0ff;
+    }
+</style>
+
+</html>

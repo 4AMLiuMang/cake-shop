@@ -1,0 +1,607 @@
+.app {
+  position: relative;
+  width: 100%;
+  height: 652px;
+  background-color: #00DBDE;
+  background-image: linear-gradient(116deg, #00DBDE 0%, #FC00FF 50%, #f59c9c 100%);
+}
+
+.top {
+  position: absolute;
+  width: 80%;
+  height: 230px;
+  left: 10%;
+}
+
+.el-carousel__item h3 {
+  color: #000000;
+  font-size: 14px;
+  opacity: 0.75;
+  line-height: 200px;
+  margin: 0;
+}
+
+.el-carousel__item:nth-child(2n) {
+  background-color: #ffffff;
+}
+
+.el-carousel__item:nth-child(2n+1) {
+  background-color: #ccd6e1;
+}
+
+.carousel-box {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  font-family: STKaiti;
+}
+
+.carousel-box-child {
+  font-family: STKaiti;
+}
+
+.box-title {
+  position: absolute;
+  font-size: 22px;
+  color: rgb(255, 102, 0);
+  left: 2%;
+  top: 5%;
+}
+
+.box-cakeImg {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  left: 2%;
+  top: 18%;
+}
+
+.box-cakeName {
+  position: absolute;
+  width: 250px;
+  height: 30px;
+  font-size: 24px;
+  color: #ff0000;
+  left: 32%;
+  top: 5%;
+}
+
+.box-cakeType {
+  position: absolute;
+  width: 180px;
+  height: 30px;
+  color: #747474;
+  left: 80%;
+  top: 8%;
+}
+
+.box-cakeIntro {
+  position: absolute;
+  width: 300px;
+  height: 80px;
+  left: 32%;
+  top: 35%;
+  font-size: 14px;
+  color: #747474;
+}
+
+.box-cakePrice {
+  position: absolute;
+  width: 180px;
+  height: 25px;
+  font-size: 20px;
+  color: #ff0000;
+  left: 32%;
+  top: 22%;
+}
+
+.box-cakeTotal {
+  position: absolute;
+  width: 80px;
+  height: 20px;
+  color: #747474;
+  left: 32%;
+  top: 78%;
+}
+
+.box-cakeRating {
+  position: absolute;
+  width: 200px;
+  height: 20px;
+  left: 45%;
+  top: 77%;
+}
+
+.box-buy {
+  position: absolute;
+  left: 80%;
+  top: 70%;
+}
+
+.center {
+  position: absolute;
+  width: 80%;
+  height: 408px;
+  background-color: rgba(255, 255, 255, 0.5);
+  left: 10%;
+  top: 240px;
+}
+
+
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: "";
+}
+
+.clearfix:after {
+  clear: both
+}
+
+.el-col-8 {
+  width: 24%;
+}
+
+.el-card__body {
+  background-color: #d5d5d5;
+}
+
+.el-col-offset-4 {
+  margin-left: 1%;
+}
+
+.card-rec {
+  position: relative;
+  width: 100%;
+  height: 160px;
+}
+
+.card-cakeImg {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  background-color: rgba(251, 255, 0, 0.1);
+  cursor: pointer;
+}
+
+.card-title {
+  position: absolute;
+  width: 120px;
+  height: 60px;
+  /* background-color: #00DBDE; */
+  left: 57%;
+  top: 8%;
+  font-family: STKaiti;
+  color: #ff0000;
+  font-size: 18px;
+}
+
+.card-price {
+  position: absolute;
+  width: 150px;
+  height: 36px;
+  /* background-color: #00DBDE; */
+  left: 57%;
+  top: 38%;
+  font-family: STKaiti;
+  color: #ff0000;
+  font-size: 24px;
+}
+
+.card-total {
+  position: absolute;
+  width: 150px;
+  height: 30px;
+  /* background-color: #00DBDE; */
+  left: 65%;
+  top: 80%;
+  font-family: STKaiti;
+  font-size: 14px;
+  color: #686868;
+}
+
+.card-bottom {
+  position: absolute;
+  width: 100px;
+  height: 30px;
+  /* background-color: #00DBDE; */
+  left: 65%;
+  top: 58%;
+  z-index: 100;
+}
+
+.center-box {
+  position: relative;
+  width: 100%;
+  height: 50%;
+}
+
+.center-box-title {
+  position: absolute;
+  font-size: 24px;
+  top: 2%;
+  left: 1%;
+  font-family: STKaiti;
+  color: #ff8000;
+}
+
+.center-box-info {
+  position: absolute;
+  width: 100%;
+  height: 80%;
+  top: 18%;
+  left: 6px;
+}
+
+.cardDV {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  /* background-color: #00DBDE; */
+}
+
+.cardDV-cakeImg {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  background-color: rgba(251, 255, 0, 0.1);
+  top: 0px;
+  left: 0%;
+}
+
+.cardDV-cakeName {
+  position: absolute;
+  width: 200px;
+  height: 65px;
+  /* background-color: #f59c9c; */
+  top: 3%;
+  left: 330px;
+  font-size: 30px;
+  font-family: STKaiti;
+  color: #ff0000;
+}
+
+.cardDV-cakeType {
+  position: absolute;
+  width: 160px;
+  height: 35px;
+  /* background-color: #ffffff; */
+  top: 3%;
+  left: 565px;
+  font-size: 16px;
+  font-family: STKaiti;
+  color: #747474;
+}
+
+.cardDV-updateTime {
+  position: absolute;
+  width: 160px;
+  height: 35px;
+  /* background-color: #ffffff; */
+  top: 15%;
+  left: 565px;
+  font-size: 16px;
+  font-family: STKaiti;
+  color: #747474;
+}
+
+.cardDV-cakeIntro {
+  position: absolute;
+  width: 230px;
+  height: 140px;
+  /* background-color: #f43a3a; */
+  top: 24%;
+  left: 330px;
+  font-size: 16px;
+  font-family: STKaiti;
+  color: #747474;
+}
+
+.cardDV-cakePrice {
+  position: absolute;
+  width: 200px;
+  height: 35px;
+  /* background-color: #ffffff; */
+  top: 70%;
+  left: 330px;
+  font-size: 28px;
+  font-family: STKaiti;
+  color: #ff0000;
+}
+
+.cardDV-cakeTotal {
+  position: absolute;
+  width: 200px;
+  height: 35px;
+  /* background-color: #ffffff; */
+  top: 30%;
+  left: 565px;
+  font-size: 16px;
+  font-family: STKaiti;
+  color: #747474;
+}
+
+.cardDV-cakeRating {
+  position: absolute;
+  width: 200px;
+  height: 35px;
+  /* background-color: #ffffff; */
+  top: 85%;
+  left: 330px;
+  font-family: STKaiti;
+}
+
+.cardDV-showComment {
+  position: absolute;
+  width: 120px;
+  height: 35px;
+  /* background-color: #ffffff; */
+  top: 45%;
+  left: 565px;
+}
+
+.buyDV {
+  position: relative;
+  width: 100%;
+  height: 300px;
+}
+
+.buyDV-cakeImg {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  left: 10%;
+}
+
+.buyDV-cakeName {
+  position: absolute;
+  width: 280px;
+  height: 35px;
+  font-family: STKaiti;
+  font-size: 30px;
+  color: #ff0000;
+  top: 10%;
+  left: 40%;
+  /* background-color: #00DBDE; */
+}
+
+.buyDV-cakePrice {
+  position: absolute;
+  width: 280px;
+  height: 35px;
+  font-family: STKaiti;
+  font-size: 24px;
+  color: #ff0000;
+  top: 30%;
+  left: 40%;
+}
+
+.buyDV-userNickname {
+  position: absolute;
+  width: 380px;
+  height: 25px;
+  font-family: STKaiti;
+  font-size: 18px;
+  top: 55%;
+  left: 10%;
+}
+
+.buyDV-userPhone {
+  position: absolute;
+  width: 280px;
+  height: 25px;
+  font-family: STKaiti;
+  font-size: 18px;
+  top: 64%;
+  left: 28%;
+}
+
+.buyDV-userAddress {
+  position: absolute;
+  width: 350px;
+  height: 75px;
+  font-size: 18px;
+  top: 73%;
+  font-family: STKaiti;
+  left: 28%;
+}
+
+.buyDV-CollectionCode {
+  position: absolute;
+  width: 80px;
+  height: 25px;
+  color: #ff0000;
+  top: 55%;
+  right: 2%;
+  font-family: STKaiti;
+  font-size: 18px;
+}
+
+.buyDV-CollectionCode-img {
+  position: absolute;
+  width: 55px;
+  height: 55px;
+  top: 65%;
+  right: 4%;
+}
+
+.buyDV-QRC {
+  position: relative;
+  width: 210px;
+  height: 105px;
+}
+
+.buyDV-QRC-img1 {
+  position: absolute;
+  left: 0%;
+}
+
+.buyDV-QRC-img2 {
+  position: absolute;
+  right: 0%;
+}
+
+
+
+.app-all {
+  position: relative;
+  width: 100%;
+  height: auto;
+  background-color: #c8fffc;
+  background-image: linear-gradient(270deg, #c8fffc 0%, #b0d9ff 33%, #e6cffc 66%, #fce6e6 100%);
+}
+
+.head-all {
+  position: fixed;
+  width: 18%;
+  height: 652px;
+  top: 0%;
+  left: 0%;
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.center-all {
+  position: absolute;
+  width: 80%;
+  height: 20px;
+  background-color: rgba(255, 255, 255, 0.3);
+  left: 18%;
+  top: 0px;
+}
+
+.center-box-all {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* .foot-all {
+  width: 200px;
+  height: 50px;
+} */
+
+.head-all-input {
+  width: 100%;
+  height: 160px;
+  background-color: rgba(0, 221, 255, 0.1);
+}
+
+.head-all-input-info {
+  width: 100%;
+  font-size: 24px;
+  margin-top: 10px;
+  font-family: STKaiti;
+  color: #636363;
+  margin-left: 5%;
+}
+
+.head-all-input-input {
+  width: 90%;
+  margin-left: 5%;
+  margin-top: 20px;
+}
+
+.head-all-line {
+  width: 100%;
+  height: 2px;
+  background-color: #c1c1c1;
+}
+
+.head-all-input-reset {
+  width: 100px;
+  margin-top: 20px;
+  margin-left: 85px;
+}
+
+.head-all-button {
+  width: 100%;
+  height: 370px;
+}
+
+.head-all-button-button-left {
+  width: 120px;
+  margin-left: 9px;
+  margin-top: 10px;
+}
+
+.head-all-button-button-right {
+  width: 120px;
+  margin-top: 15px;
+}
+
+
+.CommentDV {
+  position: relative;
+  width: 100%;
+  height: 400px;
+}
+
+.CommentDV-info {
+  position: relative;
+  width: 800px;
+  height: 200px;
+  /* background-color: #b0d9ff; */
+  margin-bottom: 15px;
+  margin-left: 10%;
+  border: #b0d9ff solid 3px;
+}
+
+.CommentDV-info-userAvatar {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  /* background-color: #000000; */
+  /* border: #f59c9c solid 2px; */
+  left: 5px;
+  top: 2px;
+}
+
+.CommentDV-info-userNickname {
+  position: absolute;
+  width: 200px;
+  height: 25px;
+  font-size: 18px;
+  left: 68px;
+  top: 5px;
+  font-family: STKaiti;
+  /* background-color: #f59c9c; */
+}
+
+.CommentDV-info-createTime {
+  position: absolute;
+  width: 200px;
+  height: 25px;
+  font-size: 16px;
+  left: 68px;
+  top: 33px;
+  font-family: STKaiti;
+  /* background-color: #f59c9c; */
+}
+
+.CommentDV-info-cmtContent {
+  position: absolute;
+  width: 797px;
+  height: 132px;
+  font-size: 16px;
+  top: 65px;
+  /* background-color: #f59c9c; */
+  border: #f59c9c solid 2px;
+  font-family: STKaiti;
+}
+
+.CommentDV-button1 {
+  position: fixed;
+  width: 120px;
+  right: 20%;
+  top: 3%;
+}
+
+.CommentDV-button2 {
+  position: fixed;
+  width: 120px;
+  right: 10%;
+  top: 3%;
+}
+.CommentDV-button{
+  width: 120px;
+}

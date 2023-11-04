@@ -1,0 +1,44 @@
+#端口
+server:
+  port: 8088
+
+#应用名称，可选
+spring:
+  main:
+    allow-circular-references: true
+  application:
+    name: cake-shop
+  datasource:
+    #数据库
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/cake_shop?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+      username: root
+      password: Hs-20010122
+mybatis-plus:
+#  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    #在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射
+    map-underscore-to-camel-case: true
+    #控制台输出sql语句
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      #Java类型为Long或String分别对应的MySQL的BIGINT和VARCHAR
+      id-type: ASSIGN_ID
+#图片保存地址
+#population-data-system:
+  #path: D:\Project\JavaWeb\Project\reggie\src\main\resources\LMusic\images\img\
+
+#阿里云对象存储服务
+aliyun:
+  oss:
+    file:
+#      endpoint: oss-cn-beijing.aliyuncs.com
+#      keyid: LTAI5tMJa4qiVLFroQ4eCS4t
+#      keysecret: X20HnwLW91wA4PmZlgnUlSrgxQwZfh
+#      bucketname: online-edu-cby
+      endpoint: oss-cn-hangzhou.aliyuncs.com
+      keyid: LTAI5tAonDN6eqzbRRUQfWmv
+      keysecret: na6Z5BKhQVbLOAEOafImBBIQK39fGk
+      bucketname: picture-storage-zsm

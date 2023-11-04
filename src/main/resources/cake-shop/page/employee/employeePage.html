@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奈川蛋糕店</title>
+    <link rel="shortcut icon" href="favicon.png">
+    <!-- 引入el样式 -->
+    <link rel="stylesheet" href="../../plugins/element-ui/index.css">
+    <link rel="stylesheet" href="../../styles/reset.css" />
+    <link rel="stylesheet" href="../../styles/backend/employeePage.css" />
+</head>
+
+<body>
+    <div class="app" id="app">
+        <div>
+            <!--搜索，操作-->
+            <div class="table-top">
+                <el-tooltip class="item" effect="dark" content="点击放大镜或敲击回车查询" placement="bottom">
+                    <el-input class="head-all-input-input" placeholder="请输入员工账号" clearable v-model="empUsername"
+                        @keyup.enter.native="handleQuery">
+                        <i slot="prefix" class="el-input__icon el-icon-search" @click="handleQuery" style="cursor: pointer;"></i>
+                    </el-input>
+                </el-tooltip>
+                <el-tooltip class="item" effect="dark" content="点击放大镜或敲击回车查询" placement="bottom">
+                    <el-input class="head-all-input-input" placeholder="请输入员工昵称" clearable v-model="empNickname"
+                        @keyup.enter.native="handleQuery">
+                        <i slot="prefix" class="el-input__icon el-icon-search" @click="handleQuery" style="cursor: pointer;"></i>
+                    </el-input>
+                </el-tooltip>
+                <el-tooltip class="item" effect="dark" content="点击放大镜或敲击回车查询" placement="bottom">
+                    <el-input class="head-all-input-input" placeholder="请输入员工邮箱" clearable v-model="empEmail"
+                        @keyup.enter.native="handleQuery">
+                        <i slot="prefix" class="el-input__icon el-icon-search" @click="handleQuery" style="cursor: pointer;"></i>
+                    </el-input>
+                </el-tooltip>
+                <el-button class="head-all-input-input head-all-input-botton" type="primary" icon="el-icon-refresh"
+                    plain @click="handleQueryReset">重置</el-button>
+                <el-button class="head-all-input-input head-all-input-botton" type="success"
+                    icon="el-icon-circle-plus-outline" plain @click="handleEditEmp('新增')">新增</el-button>
+                <div class="table-botton">
+                    <el-button type="success" plain @click="handleStatus('1')">批量启用</el-button>
+                    <el-button type="warning" plain @click="handleStatus('0')">批量禁用</el-button>
+                    <el-button type="danger" plain @click="handleDelete('批量', null)">批量删除</el-button>
+                </div>
+            </div>
+            <!--表格-->
+            <el-table :data="empData" height="540" border style="width: 100%; margin-left: 0%;"
+                :row-class-name="tableRowClassName" @selection-change="handleSelectionChange">
+                <el-table-column align="center" type="selection" width="50">
+                </el-table-column>
+                <el-table-column type="expand">
+                    <template slot-scope="props">
+                        <el-form label-position="left" inline class="demo-table-expand">
+                            <el-form-item label="员工手机:">
+                                <span>{{ props.row.empPhone }}</span>
+                            </el-form-item>
+                            <el-form-item label="身 份 证:">
+                                <span>{{ props.row.empIdentity }}</span>
+                            </el-form-item>
+                            <el-form-item label="员工邮箱:">
+                                <span>{{ props.row.empEmail }}</span>
+                            </el-form-item>
+                            <el-form-item label="修改时间:">
+                                <span>{{ props.row.updateTime }}</span>
+                            </el-form-item>
+                            <el-form-item label="员工地址:">
+                                <span>{{ props.row.empAddress }}</span>
+                            </el-form-item>
+                        </el-form>
+                    </template>
+                </el-table-column>
+                <el-table-column align="center" label="头像" width="100">
+                    <template slot-scope="{ row }">
+                        <el-avatar style="width: 40px; height: 40px" shape="square" size="large" :src="row.empAvatar"
+                            fit="fill"></el-avatar>
+                    </template>
+                </el-table-column>
+                <el-table-column align="center" prop="empUsername" label="账号" width="200">
+                </el-table-column>
+                <el-table-column align="center" prop="empNickname" label="昵称" width="180">
+                </el-table-column>
+                <el-table-column align="center" prop="empGender" label="性别" width="120">
+                    <template slot-scope="scope">
+                        {{scope.row.empGender === 0 ? '女' : '男'}}
+                    </template>
+                </el-table-column>
+                <el-table-column sortable align="center" prop="createTime" label="注册时间" width="220">
+                </el-table-column>
+                <el-table-column align="center" label="状态" width="120">
+                    <template slot-scope="scope">
+                        {{scope.row.empStatus === 0 ? '已禁用' : '正常'}}
+                    </template>
+                </el-table-column>
+                <el-table-column align="center" label="操作">
+                    <template slot-scope="scope">
+                        <el-button type="primary" plain @click="handleEditEmp(scope.row.id)">修改</el-button>
+                        <el-button v-if="scope.row.empStatus == '1'" type="warning" plain
+                            @click="handleStatus(scope.row)">禁用
+                        </el-button>
+                        <el-button v-else type="success" plain @click="handleStatus(scope.row)">启用
+                        </el-button>
+                        <el-button type="danger" plain @click="handleDelete('单删', scope.row.id)">删除
+                        </el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <!--分页条-->
+            <el-pagination class="pageList" :page-sizes="[8, 16, 32, 64, 128]" :page-size="pageSize"
+                layout="total, sizes, prev, pager, next, jumper" :total="counts" :current-page.sync="page"
+                @size-change="handleSizeChange" @current-change="handleCurrentChange"></el-pagination>
+        </div>
+        <!-- 修改资料弹窗 -->
+        <div>
+            <el-dialog title="修改员工资料" :visible.sync="editEmpDV" width="50%" fullscreen :before-close="handleClose">
+                <div>
+                    <el-form :model="empDataInfo" status-icon :rules="rules" ref="empDataInfo" label-width="100px">
+                        <div class="editUser-box">
+                            <div class="editUser-userAvatar">
+                                <el-upload class="editUser-userAvatar-uploader"
+                                    action="http://localhost:8088/oss/avatarUpload" :show-file-list="false"
+                                    :on-success="handleAvatarSuccess" :before-upload="beforeUpload">
+                                    <el-avatar v-if="empDataInfo.empAvatar" style="width: 80px; height: 80px"
+                                        shape="square" size="large" :src="empDataInfo.empAvatar" fit="fill">
+                                    </el-avatar>
+                                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                </el-upload>
+                            </div>
+                            <div class="editUser-userUsername">
+                                <el-form-item label="账号:" prop="empUsername">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-user" placeholder="请输入账号"
+                                        v-model="empDataInfo.empUsername" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userNickname">
+                                <el-form-item label="昵称:" prop="empNickname">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-user" placeholder="请输入昵称"
+                                        v-model="empDataInfo.empNickname" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userGender">
+                                <el-form-item label="性别:" prop="empGender">
+                                    <el-radio-group v-model="empDataInfo.empGender">
+                                        <el-radio label="男"></el-radio>
+                                        <el-radio label="女"></el-radio>
+                                    </el-radio-group>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userEmail">
+                                <el-form-item label="邮箱:" prop="empEmail">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-message" placeholder="请输入邮箱"
+                                        v-model="empDataInfo.empEmail" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userPhone">
+                                <el-form-item label="手机:" prop="empPhone">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-mobile-phone"
+                                        placeholder="请输入手机" v-model="empDataInfo.empPhone" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userID">
+                                <el-form-item label="身份证:" prop="empIdentity">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-mobile-phone"
+                                        placeholder="请输入身份证" v-model="empDataInfo.empIdentity" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userAddress">
+                                <el-form-item label="地址:" prop="empAddress">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-map-location"
+                                        placeholder="请输入收货地址" v-model="empDataInfo.empAddress" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                        </div>
+                    </el-form>
+                    <el-button class="editUser-button1" @click="caneclEditEmp">取消修改</el-button>
+                    <el-button class="editUser-button2" type="primary" @click="confirmEditEmp(empDataInfo)">确定修改
+                    </el-button>
+                </div>
+            </el-dialog>
+        </div>
+        <!-- 新增员工弹窗 -->
+        <div>
+            <el-dialog title="新增员工资料" :visible.sync="addEmpDV" width="50%" fullscreen :before-close="handleClose">
+                <div>
+                    <el-form :model="empDataInfo" status-icon :rules="rules" ref="empDataInfo"
+                        label-width="100px">
+                        <div class="editUser-box">
+                            <div class="editUser-userAvatar">
+                                <el-upload class="editUser-userAvatar-uploader"
+                                    action="http://localhost:8088/oss/avatarUpload" :show-file-list="false"
+                                    :on-success="handleAvatarSuccess" :before-upload="beforeUpload">
+                                    <el-avatar v-if="empDataInfo.empAvatar" style="width: 80px; height: 80px"
+                                        shape="square" size="large" :src="empDataInfo.empAvatar" fit="fill">
+                                    </el-avatar>
+                                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                </el-upload>
+                            </div>
+                            <div class="editUser-userUsername">
+                                <el-form-item label="账号:" prop="empUsername">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-user" placeholder="请输入账号"
+                                        v-model="empDataInfo.empUsername" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userNickname">
+                                <el-form-item label="昵称:" prop="empNickname">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-user" placeholder="请输入昵称"
+                                        v-model="empDataInfo.empNickname" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userGender">
+                                <el-form-item label="性别:" prop="empGender">
+                                    <el-radio-group v-model="empDataInfo.empGender">
+                                        <el-radio label="男"></el-radio>
+                                        <el-radio label="女"></el-radio>
+                                    </el-radio-group>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userEmail">
+                                <el-form-item label="邮箱:" prop="empEmail">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-message" placeholder="请输入邮箱"
+                                        v-model="empDataInfo.empEmail" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userPhone">
+                                <el-form-item label="手机:" prop="empPhone">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-mobile-phone"
+                                        placeholder="请输入手机" v-model="empDataInfo.empPhone" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userID">
+                                <el-form-item label="身份证:" prop="empIdentity">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-mobile-phone"
+                                        placeholder="请输入身份证" v-model="empDataInfo.empIdentity" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                            <div class="editUser-userAddress">
+                                <el-form-item label="地址:" prop="empAddress">
+                                    <el-input class="edit-user-input" prefix-icon="el-icon-map-location"
+                                        placeholder="请输入收货地址" v-model="empDataInfo.empAddress" clearable></el-input>
+                                </el-form-item>
+                            </div>
+                        </div>
+                    </el-form>
+                    <el-button class="editUser-button1" @click="caneclAddEmp">取消添加</el-button>
+                    <el-button class="editUser-button2" type="primary" @click="confirmAddEmp(empDataInfo)">确定添加
+                    </el-button>
+                </div>
+            </el-dialog>
+        </div>
+    </div>
+    <!-- 引入vue -->
+    <script src="../../plugins/vue/vue.min.js"></script>
+    <!-- 引入el组件库 -->
+    <script src="../../plugins/element-ui/index.js"></script>
+    <!-- 引入axios -->
+    <script src="../../plugins/axios/axios.min.js"></script>
+    <!-- 引入输入校验 -->
+    <script src="../../js/validate.js"></script>
+    <!-- 引入拦截器 -->
+    <script src="../../js/request.js"></script>
+    <!-- 引入接口 -->
+    <script src="../../api/backend/employee.js"></script>
+    <script>
+        new Vue({
+            el: "#app",
+            data() {
+                return {
+                    employeeInfo: {},
+                    employeeData: {
+                        "id": "",
+                        "empUsername": "",
+                        "empPassword": "",
+                        "empNickname": "",
+                        "empAvatar": "",
+                        "empGender": "",
+                        "empPhone": "",
+                        "empIdentity": "",
+                        "empEmail": "",
+                        "empAddress": "",
+                        "empStatus": "",
+                        "createTime": "",
+                        "updateTime": ""
+                    },
+                    page: 1,
+                    pageSize: 8,
+                    counts: "",
+                    empData: [],
+                    empUsername: "",
+                    empNickname: "",
+                    empEmail: "",
+                    editEmpDV: false,
+                    addEmpDV: false,
+                    empDataInfo: {},
+                }
+            },
+            computed: {
+                rules() {
+                    var checkRePassWord = (rule, value, callback) => {
+                        if (value == "") {
+                            callback(new Error("请输入密码"))
+                        } else if (value.length > 20 || value.length < 6) {
+                            callback(new Error("密码长度应是6-20"))
+                        } else if (value != this.editPwd.empPassword) {
+                            callback(new Error("两次密码不一致"))
+                        } else {
+                            callback()
+                        }
+                    }
+                    return {
+                        // 验证账号
+                        userUsername: [{ required: false, 'validator': checkUserName, trigger: 'blur' }],
+                        empUsername: [{ required: false, 'validator': checkUserName, trigger: 'blur' }],
+                        // 验证邮箱
+                        empEmail: [{ required: false, 'validator': checkEmail, trigger: 'blur' }],
+                        // 验证密码
+                        userPassword: [{ required: false, 'validator': checkPassWord, trigger: 'blur' }],
+                        empPassword: [{ required: false, 'validator': checkPassWord, trigger: 'blur' }],
+                        oldPassword: [{ required: false, 'validator': checkPassWord, trigger: 'blur' }],
+                        // 验证二次密码
+                        reEmpPassword: [{ required: false, 'validator': checkRePassWord, trigger: 'blur' }],
+                        // 验证昵称
+                        empNickname: [{ required: false, 'validator': checkName, trigger: 'blur' }],
+                        // 验证手机号
+                        empPhone: [{ required: false, 'validator': checkPhone, trigger: 'blur' }],
+                        // 验证地址
+                        empAddress: [{ required: false, 'validator': checkAddress, trigger: 'blur' }],
+                        // 验证身份证
+                        empIdentity: [{ required: false, 'validator': validID, trigger: 'blur' }],
+                    }
+                }
+            },
+            created() {
+                this.employeeInfo = JSON.parse(window.localStorage.getItem('employeeInfo'))
+                if (this.employeeInfo != null) {
+                    this.employeeData = this.employeeInfo
+                }
+                // this.init()
+                this.handleGetEmpData()
+            },
+            mounted() {
+            },
+            methods: {
+                //查询所有员工数据
+                async handleGetEmpData() {
+                    const params = {
+                        page: this.page,
+                        pageSize: this.pageSize,
+                        empUsername: this.empUsername ? this.empUsername : undefined,
+                        empNickname: this.empNickname ? this.empNickname : undefined,
+                        empEmail: this.empEmail ? this.empEmail : undefined,
+                    }
+                    await getEmployeeList(params).then(res => {
+                        if (res.code === 1) {
+                            this.empData = res.data.records || []
+                            this.counts = res.data.total
+                        }
+                    }).catch(err => {
+                        this.$message.error('请求出错了：' + err)
+                    })
+                },
+                // // 验证是否为管理员登录登录
+                // init() {
+                //     if (this.employeeData.empUsername == "administrator") {
+                //         this.isAdmin = true
+                //     } else {
+                //         this.isAdmin = false
+                //     }
+                // },
+                //模糊搜索查询
+                handleQuery() {
+                    this.page = 1;
+                    this.handleGetEmpData();
+                },
+                //重置分类查询
+                handleQueryReset() {
+                    this.empUsername = "";
+                    this.empNickname = "";
+                    this.empEmail = "";
+                    this.page = 1;
+                    this.pageSize = 8;
+                    this.handleGetEmpData();
+                },
+                //分页查询，页数
+                handleCurrentChange(val) {
+                    this.page = val
+                    this.handleGetEmpData()
+                },
+                //分页查询，条数
+                handleSizeChange(val) {
+                    this.pageSize = val
+                    this.handleGetEmpData()
+                },
+                //将勾选的数据构成数组
+                handleSelectionChange(val) {
+                    let checkArr = []
+                    val.forEach((n) => {
+                        checkArr.push(n.id)
+                    })
+                    this.checkList = checkArr
+                },
+                //修改表格颜色
+                tableRowClassName({ row, rowIndex }) {
+                    if (row.empStatus === 0) {
+                        return 'danger-row';
+                    }
+                    return 'success-row';
+                },
+                // 删除
+                handleDelete(type, id) {
+                    if (type === '批量' && id === null) {
+                        if (this.checkList.length === 0) {
+                            return this.$message.error('请选择删除对象')
+                        }
+                    }
+                    this.$confirm('确认删除该员工, 是否继续?', '确定删除', {
+                        'confirmButtonText': '确定',
+                        'cancelButtonText': '取消',
+                        'type': 'warning'
+                    }).then(() => {
+                        deleteEmployee(type === '批量' ? this.checkList.join(',') : id).then(res => {
+                            if (res.code === 1) {
+                                this.$message.success('删除成功！')
+                                this.handleQuery()
+                            } else {
+                                this.$message.error(res.message || '操作失败')
+                            }
+                        }).catch(err => {
+                            this.$message.error('请求出错了：' + err)
+                        })
+                    })
+                },
+                //状态更改
+                handleStatus(row) {
+                    let params = {}
+                    if (typeof row === 'string') {
+                        if (this.checkList.length === 0) {
+                            this.$message.error('批量操作，请先勾选员工后操作！')
+                            return false
+                        }
+                        params.id = this.checkList.join(',')
+                        params.empStatus = row
+                    } else {
+                        params.id = row.id
+                        params.empStatus = row.empStatus ? 0 : 1
+                    }
+                    this.empState = params
+                    this.$confirm('确认更改该员工状态?', '提示', {
+                        'confirmButtonText': '确定',
+                        'cancelButtonText': '取消',
+                        'type': 'warning'
+                    }).then(() => {
+                        // 启用禁用---批量启用禁用接口
+                        enableOrDisableEmp(this.empState).then(res => {
+                            if (res.code === 1) {
+                                this.$message.success('员工状态已经更改成功！')
+                                this.handleQuery()
+                            } else {
+                                this.$message.error(res.message || '操作失败')
+                            }
+                        }).catch(err => {
+                            this.$message.error('请求出错了：' + err)
+                        })
+                    })
+                },
+                //请求员工数据并打开修改弹窗
+                handleEditEmp(row) {
+                    if (row === '新增') {
+                        this.empDataInfo = {}
+                        this.addEmpDV = true
+                    } else {
+                        this.handleQueryEmp(row)
+                        this.editEmpDV = true
+                    }
+                },
+                //异步请求员工的数据
+                async handleQueryEmp(id) {
+                    queryEmployeeById(id).then(res => {
+                        if (res.code === 1) {
+                            this.empDataInfo = res.data
+                            this.empDataInfo.empGender = res.data.empGender === 0 ? '女' : '男'
+                        } else {
+                            this.$message.error(res.message || '操作失败')
+                        }
+                    })
+                },
+                //取消修改员工
+                caneclEditEmp() {
+                    this.editEmpDV = false
+                    this.empDataInfo = {}
+                },
+                //取消新增员工
+                caneclAddEmp() {
+                    this.addEmpDV = false
+                    this.empDataInfo = {}
+                },
+                //定义图片的上传规则
+                beforeUpload(file) {
+                    const isJPG = file.type === 'image/jpeg'
+                    const isPNG = file.type === 'image/png'
+                    const isGIF = file.type === 'image/gif'
+                    const isLt2M = file.size / 1024 / 1024 < 2
+                    if (isJPG || isPNG || isGIF) {
+                        if (!isLt2M) {
+                            this.$message.error("上传的图片大小不能超过2MB!")
+                        }
+                        return isLt2M
+                    } else {
+                        this.$message.error("上传的图片格式只能为JPG,PNG和GIF")
+                    }
+
+                },
+                //保存 图片上传到阿里云OSS服务后 返回的url
+                handleAvatarSuccess(res, file) {
+                    this.empDataInfo.empAvatar = file.response.map.url
+                },
+                //修改员工的数据
+                async confirmEditEmp(empDataInfo) {
+                    this.$refs.empDataInfo.validate(async (valid) => {
+                        if (valid) {
+                            const params = {
+                                ...this.empDataInfo,
+                                empGender: this.empDataInfo.empGender === '女' ? 0 : 1,
+                            }
+                            editEmpApi(params).then(res => {
+                                if (res.code === 1) {
+                                    this.handleQuery()
+                                    this.$message.success('员工信息修改成功！')
+                                    this.editEmpDV = false
+                                } else {
+                                    this.$message.error(res.message || '操作失败')
+                                }
+                            }).catch(err => {
+                                this.$message.error('请求出错了：' + err)
+                            })
+                        } else {
+                            console.log('error submit!!')
+                            return false
+                        }
+                    })
+                },
+                //新增员工
+                async confirmAddEmp(empDataInfo) {
+                    this.$refs.empDataInfo.validate(async (valid) => {
+                        if (valid) {
+                            const params = {
+                                ...this.empDataInfo,
+                                empGender: this.empDataInfo.empGender === '女' ? 0 : 1,
+                            }
+                            addEmpApi(params).then(res => {
+                                if (res.code === 1) {
+                                    this.handleQuery()
+                                    this.$message.success('添加员工成功！')
+                                    this.addEmpDV = false
+                                } else {
+                                    this.$message.error(res.message || '操作失败')
+                                }
+                            }).catch(err => {
+                                this.$message.error('请求出错了：' + err)
+                            })
+                        } else {
+                            console.log('error submit!!')
+                            return false
+                        }
+                    })
+                },
+                //关闭弹框
+                handleClose(done) {
+                    this.$confirm('确认关闭？')
+                        .then(_ => {
+                            done();
+                        })
+                        .catch(_ => { });
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
